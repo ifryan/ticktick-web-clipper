@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TickTick Web Clipper</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div class="popup-container">
+        <!-- Not logged in state -->
+        <div id="not-logged-in" style="display:none;">
+            <div class="status-icon">🔒</div>
+            <p class="status-text">请先登录滴答清单</p>
+            <button id="btn-go-options" class="btn btn-primary btn-full">打开设置</button>
+        </div>
+
+        <!-- Ready to clip state -->
+        <div id="clip-form" style="display:none;">
+            <div class="form-header">
+                <img src="../icons/icon32.png" alt="" class="form-icon">
+                <span class="form-title">剪藏到滴答清单</span>
+            </div>
+
+            <div class="form-group">
+                <label for="popup-title">标题</label>
+                <input type="text" id="popup-title" placeholder="加载中...">
+            </div>
+
+            <div class="form-group">
+                <label for="popup-list">清单</label>
+                <select id="popup-list">
+                    <option value="">收件箱</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group half">
+                    <label for="popup-priority">优先级</label>
+                    <select id="popup-priority">
+                        <option value="0">无</option>
+                        <option value="1">低</option>
+                        <option value="3">中</option>
+                        <option value="5">高</option>
+                    </select>
+                </div>
+                <div class="form-group half">
+                    <label for="popup-due">截止日期</label>
+                    <select id="popup-due">
+                        <option value="-1">不设置</option>
+                        <option value="0">今天</option>
+                        <option value="1">明天</option>
+                        <option value="7">一周后</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group checkbox-inline">
+                <label>
+                    <input type="checkbox" id="popup-content" checked>
+                    <span>包含正文</span>
+                </label>
+            </div>
+
+            <button id="btn-clip" class="btn btn-primary btn-full">
+                ✨ 保存到滴答清单
+            </button>
+        </div>
+
+        <!-- Success state -->
+        <div id="clip-success" style="display:none;">
+            <div class="status-icon">✅</div>
+            <p class="status-text">已保存到滴答清单!</p>
+        </div>
+
+        <!-- Error state -->
+        <div id="clip-error" style="display:none;">
+            <div class="status-icon">❌</div>
+            <p class="status-text" id="error-message">创建失败</p>
+            <button id="btn-retry" class="btn btn-secondary btn-full">重试</button>
+        </div>
+    </div>
+
+    <script src="popup.js" type="module"></script>
+</body>
+
+</html>
