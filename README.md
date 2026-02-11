@@ -65,23 +65,19 @@ src/
 └── icons/                 # 扩展图标
 ```
 
-## 🔧 技术栈
-
-- **Manifest V3** + ES Modules
-- **Chrome APIs**: `storage`, `scripting`, `identity`, `contextMenus`, `action`
-- **[Readability.js](https://github.com/mozilla/readability)** — Mozilla 出品的正文提取库
-- **[Turndown.js](https://github.com/mixmark-io/turndown)** — HTML 转 Markdown
-
 ## 🙏 致谢
 
 本项目的灵感和部分设计参考了以下开源项目：
 
 - **[nickytonline/ticktick-web-clipper](https://github.com/nickytonline/ticktick-web-clipper)** — 原始 TickTick Web Clipper 实现，为本项目提供了核心架构思路和 API 交互方式的参考
-- **[Mozilla Readability](https://github.com/mozilla/readability)** — 强大的网页正文提取库
-- **[Turndown](https://github.com/mixmark-io/turndown)** — 优雅的 HTML 转 Markdown 工具
 
 感谢所有开源贡献者的无私奉献 🎉
 
 ## 📄 License
 
 MIT
+
+## 🤖 Co-author
+
+- Antigravity
+- Claude
