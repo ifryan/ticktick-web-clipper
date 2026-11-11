@@ -15,6 +15,27 @@ export const ticktickApi = {
         return !!token;
     },
 
+    async getAccountInfo() {
+        const { apiDomain, token } = await storage.getDomainConfig();
+        const account = { apiDomain, isLoggedIn: !!token, accountName: '' };
+        if (!token) return account;
+
+        try {
+            const response = await ticktickApi.rest('GET', 'user/info', undefined, apiDomain);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch account: HTTP ${response.status}`);
+            }
+            const profile = await response.json();
+            const accountName = [profile?.username, profile?.email, profile?.name]
+                .find(value => typeof value === 'string' && value.trim());
+            account.accountName = accountName?.trim() || '';
+        } catch (error) {
+            console.warn('Failed to load account information:', error.message);
+        }
+
+        return account;
+    },
+
     /**
      * Generic REST API call with Bearer token
      */
@@ -82,7 +103,7 @@ export const ticktickApi = {
         const { apiDomain, oauthBase, clientId } = await storage.getDomainConfig();
 
         if (!clientId) {
-            throw new Error('当前服务版本尚未配置授权应用，请在高级授权设置中填写 Client ID');
+            throw new Error('当前服务版本尚未配置授权应用，请联系插件开发者');
         }
 
         const redirectUri = chrome.identity.getRedirectURL();

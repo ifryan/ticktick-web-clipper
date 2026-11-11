@@ -1,93 +1,135 @@
 # TickTick Web Clipper
 
-一键剪藏当前网页至 [滴答清单 (Dida365)](https://dida365.com) / [TickTick](https://ticktick.com)。
+将网页链接、选中文本和页面正文保存到滴答清单或 TickTick 的社区浏览器扩展，使用 Manifest V3、原生 JavaScript 和 HTML/CSS。
 
-## ✨ 功能
+当前通过源码加载使用。公开发布前需要继续处理授权配置、弹窗保存流程与令牌存储等问题，具体发现和调整建议见开源审查报告。
 
-- **一键剪藏** — 点击工具栏图标，将当前页面标题 + 链接保存为任务
-- **右键菜单** — 发送整个页面或选中文本到滴答清单
-- **正文提取** — 自动提取网页主体内容并转换为 Markdown
-- **弹出面板** — 可选开启，点击图标时先预览编辑再保存
-- **页内通知** — 任务创建成功/失败后在页面右上角显示 toast 通知
-- **双域名支持** — 同时支持国内版 (dida365.com) 和国际版 (ticktick.com)
-- **丰富配置** — 目标清单、优先级、截止日期、标签等均可自定义
+[审查报告](docs/open-source-review.md) · [反馈问题](https://github.com/ifryan/ticktick-web-clipper/issues) · [作者网站](https://ryanhuang.space)
 
-## 📦 安装
+## 功能
 
-### 从源码加载
+- 点击工具栏图标，将当前网页标题和链接保存为任务。
+- 使用右键菜单剪藏整个页面或选中文字，选区支持保留链接、加粗、列表等 Markdown 格式。
+- 使用 Readability 提取正文，再通过 Turndown 转换为 Markdown。
+- 配置目标清单、优先级、截止日期、正文提取、页内通知和保存后关闭标签页。
+- 开启弹窗模式，在保存前查看并调整清单、优先级和日期。
+- 切换国内版与国际版，分别保存授权和目标清单，并显示服务版本与登录账号。
 
-1. 克隆本仓库
+标签设置会在任务正文末尾附加标签文字。当前弹窗的标题编辑和错误反馈存在已知问题，详见下方说明。
 
-   ```bash
-   git clone https://github.com/ifryan-work/ticktick-web-clipper.git
+## 安装
+
+适用于支持 Manifest V3 和 `chrome.identity` 的 Chromium 浏览器。当前以 Chrome 的源码加载方式为开发入口。
+
+```bash
+git clone https://github.com/ifryan/ticktick-web-clipper.git
+cd ticktick-web-clipper
+```
+
+1. 在 Chrome 打开 `chrome://extensions`。
+2. 开启「开发者模式」。
+3. 点击「加载已解压的扩展程序」，选择仓库中的 `src/` 目录。
+4. 打开扩展的「选项」，选择国内版或国际版。
+5. 点击「登录」，在对应服务的页面完成授权。
+6. 点击刷新清单按钮，选择默认保存位置。
+
+项目源码可以直接加载。修改文件后，在扩展管理页点击重新加载，再重新打开设置页或弹窗。
+
+### OAuth 应用与回调地址
+
+仓库包含国内版和国际版的公共 Client ID。OAuth 回调地址由浏览器为实际安装的扩展生成，必须与开发者平台登记的地址一致。自行克隆、移动源码路径或重新打包时，需要核对实际扩展 ID 和回调地址。当前源码加载方式需要完成这项配置才能用于不同安装环境。
+
+维护自己的 OAuth 应用时，可按以下步骤配置。
+
+1. 在对应服务的开发者平台注册应用。
+2. 在 `chrome://extensions` 中找到扩展，打开 Service Worker 检查窗口，在控制台执行以下命令。
+
+   ```js
+   chrome.identity.getRedirectURL()
    ```
 
-2. 打开 Chrome，进入 `chrome://extensions`
+3. 将返回的完整地址登记到该应用，例如 `https://<extension-id>.chromiumapp.org/`。
+4. 在 `src/js/store.js` 的 `DEFAULT_CLIENT_IDS` 中设置对应服务的 Client ID。
+5. 重新加载扩展，选择服务版本后登录。
 
-3. 开启右上角 **开发者模式**
+已保存的自定义 Client ID 优先于源码默认值。维护旧安装配置时，可在扩展 Service Worker 控制台删除对应的 `dida365.clientId` 或 `ticktick.clientId` 键，再重新登录。
 
-4. 点击 **加载已解压的扩展程序**，选择 `src/` 目录
+插件使用带 S256 PKCE 的授权码流程，请求 `tasks:read tasks:write` 权限。Client ID 是应用标识，应用的 Client Secret 和打包私钥应由维护者单独保管。
 
-### 登录授权
+[滴答清单开发者平台](https://developer.dida365.com) · [TickTick 开发者平台](https://developer.ticktick.com) · [Chrome Identity 文档](https://developer.chrome.com/docs/extensions/reference/api/identity)
 
-国内版和国际版均已预置插件的 OAuth 应用配置。打开扩展的「选项」，选择服务版本后点击登录，在滴答清单 / TickTick 页面确认授权。插件自动生成回调地址。
+## 使用
 
-两版分别保存登录状态、自建应用配置和目标清单。切换版本后会读取该版本的设置，登出当前版本后可继续使用另一版的登录状态。旧版共用的授权和清单配置会迁移到升级时选中的服务版本。
+默认模式下，点击工具栏图标直接保存当前网页。右键菜单可以保存页面或选区；同一网页的不同选区会在标题中附加不同的摘要。
 
-### 开发者配置
+开启「弹出面板模式」后，点击图标先打开弹窗。弹窗中的清单、优先级、日期和正文开关会写回默认设置。成功提示显示在当前网页中，可从提示打开已创建的任务。
 
-使用自建应用时，展开「高级授权设置」：
+国内版和国际版分别保留登录状态与默认清单。切换版本后会读取该版本的账户设置。页脚包含插件版本、作者网站及社交链接。
 
-1. 前往开发者平台注册应用：
-   - 国内版：[developer.dida365.com](https://developer.dida365.com)
-   - 国际版：[developer.ticktick.com](https://developer.ticktick.com)
+## 隐私与权限
 
-2. 创建应用时，将 **OAuth 回调地址** 设置为扩展显示的 Redirect URI（在设置页可以看到）
+网页正文和选区在当前浏览器中提取，再将任务标题、来源链接、所选正文和配置发送到用户选择的滴答清单或 TickTick API。授权请求也直接发送到相应服务。
 
-3. 获取应用的 `Client ID`，并确认该应用允许 PKCE（S256）公共客户端授权
+当前设置、目标清单和 OAuth 访问令牌保存在 `chrome.storage.sync` 中，启用 Chrome 同步时可能同步到同一浏览器账号的其他设备。账号名称通过当前服务的用户信息接口读取并显示在界面中。令牌存储方式的改进已记录在审查报告中。
 
-4. 选择对应的服务版本，填写自建应用的 `Client ID` 后点击登录
+| 权限 | 当前用途 |
+| --- | --- |
+| `activeTab` | 在用户触发剪藏时访问当前标签页 |
+| `scripting` | 注入正文提取、选区提取和页内通知脚本 |
+| `contextMenus` | 提供页面与选区的右键菜单 |
+| `storage` | 保存设置和授权状态 |
+| `identity` | 发起 OAuth 授权并生成回调地址 |
+| `sessions` | 当前清单中保留的权限，源码尚未调用，待精简 |
+| 服务域名访问权限 | 请求国内版或国际版的 OAuth 与 Open API |
 
-插件通过 `code_challenge` 和 `code_verifier` 完成授权码交换。国内版及普通开发者应用的 PKCE 支持情况需要通过实际授权确认，授权失败时设置页会显示服务端返回的错误。
+关闭「包含页面正文」可以仅保存网页引用。退出登录会清除当前服务在扩展中保存的访问令牌。
 
-## 🏗 项目结构
+[Chrome Storage 文档](https://developer.chrome.com/docs/extensions/reference/api/storage)
 
-```
+## 已知限制
+
+- **授权分发** — 内置应用的回调登记需要与安装环境匹配，面向普通用户的稳定安装包和发布流程仍待完善。
+- **弹窗标题** — 标题输入框的修改尚未传入创建任务流程，保存时仍使用网页标题。
+- **失败反馈** — 剪藏核心流程会捕获部分创建错误，后台消息仍可能返回成功，导致弹窗提前关闭。
+- **账号信息** — `GET /open/v1/user/info` 未列入本次核对的官方 Open API 文档，两版兼容性仍待真实联调。读取失败时显示账号信息暂不可用。
+- **页面支持** — 浏览器内部页面、扩展商店等受限页面可能无法注入脚本；正文提取失败时可能只保留网页引用。
+- **Markdown 链接** — 全文提取中的标签符号替换可能影响带 `#` 的锚点链接。
+
+审查报告还包含配置持久化、通知 DOM、依赖溯源、权限和发布验证方面的改进建议。
+
+## 开发与贡献
+
+```text
 src/
-├── manifest.json          # MV3 扩展清单
-├── service-worker.js      # 后台 Service Worker
+├── manifest.json             扩展配置与权限
+├── service-worker.js         工具栏、右键菜单与页面消息入口
 ├── js/
-│   ├── store.js           # Chrome Storage 封装
-│   ├── ticktick-api.js    # TickTick/Dida365 API 封装
-│   ├── clipper.js         # 核心剪藏逻辑 + 页内 Toast
-│   └── content-script.js  # 正文提取脚本
-├── lib/
-│   ├── readability.js     # Mozilla Readability
-│   └── turndown.js        # Turndown (HTML → Markdown)
-├── options/               # 设置页面
-│   ├── options.html
-│   ├── options.css
-│   └── options.js
-├── popup/                 # 弹出面板（可选）
-│   ├── popup.html
-│   ├── popup.css
-│   └── popup.js
-└── icons/                 # 扩展图标
+│   ├── store.js              设置及分服务账户存储
+│   ├── ticktick-api.js       OAuth、账户与任务 API
+│   ├── clipper.js            剪藏流程和页内通知
+│   ├── content-script.js     正文提取
+│   └── selection-script.js   选区提取
+├── styles/ui.css             设置页与弹窗共用样式
+├── options/                  设置页
+├── popup/                    剪藏弹窗
+├── lib/                      随扩展分发的第三方库与许可证
+└── icons/                    扩展图标
 ```
 
-## 🙏 致谢
+项目采用原生 ES modules，当前开发流程为修改源码、重新加载扩展和手动验证。仓库尚未建立自动化测试与 CI。
 
-本项目的灵感和部分设计参考了以下开源项目：
+提交问题时，请提供浏览器版本、所选服务、复现步骤和期望结果。涉及账号或授权的日志需要先移除令牌、授权码与私人内容。涉及凭证泄露的问题可先通过作者网站联系维护者。
 
-- **[nickytonline/ticktick-web-clipper](https://github.com/nickytonline/ticktick-web-clipper)** — 原始 TickTick Web Clipper 实现，为本项目提供了核心架构思路和 API 交互方式的参考
+提交 PR 时，使用英文描述改动和验证结果。建议围绕一个问题提交，并注明实际完成的检查。涉及剪藏流程时，应覆盖工具栏、右键选区、弹窗三种入口，以及成功、授权过期和请求失败的结果。两版服务的实际联调结果请分别记录。
 
-感谢所有开源贡献者的无私奉献 🎉
+## 许可与来源
 
-## 📄 License
+本项目自有代码使用 MIT 许可证。随扩展分发的 Readability 使用 Apache-2.0，Turndown 使用 MIT，完整许可和已知来源记录随源码提供。
 
-MIT
+早期 README 记录了对 `nickytonline/ticktick-web-clipper` 的参考，本次核对时该仓库地址返回 404。历史引用范围与图标来源仍需维护者补充确认。界面采用本项目编写的原生 HTML/CSS，分组布局参考 Arc UI Pro Settings Page。
 
-## 🤖 Co-author
+[MIT 许可证](LICENSE) · [第三方许可与来源](src/lib/THIRD_PARTY_NOTICES.md) · [开源审查报告](docs/open-source-review.md)
 
-- Antigravity
-- Claude
+## 作者
+
+[@ifryanx](https://ryanhuang.space) · [X](https://x.com/ryanhuangcn) · [GitHub](https://github.com/ifryan)

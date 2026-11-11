@@ -21,6 +21,7 @@ const els = {
     popupPriority: $('popup-priority'),
     popupDue: $('popup-due'),
     popupContent: $('popup-content'),
+    popupAccount: $('popup-account'),
     errorMessage: $('error-message')
 };
 
@@ -37,6 +38,11 @@ function showView(viewName) {
 
 // ─── Init ─────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
+    const accountInfo = sendMessage('getAccountInfo');
+    accountInfo.then(response => {
+        els.popupAccount.textContent = response?.success ? response.data.label : '账号信息暂不可用';
+    });
+
     // Check login
     const authResponse = await sendMessage('isLoggedIn');
     if (!authResponse?.success || !authResponse.data) {
@@ -138,6 +144,6 @@ async function handleClip() {
         showView('clipError');
     } finally {
         els.btnClip.disabled = false;
-        els.btnClip.innerHTML = '✨ 保存到滴答清单';
+        els.btnClip.textContent = '保存到滴答清单';
     }
 }

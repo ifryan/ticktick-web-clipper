@@ -1,0 +1,292 @@
+/* Native HTML/CSS adaptation of Arc UI Pro's Settings Page.
+ * Layout reference: arc-ui-pro-source-20261010/blocks/settings-page.tsx.
+ * Control styling is defined locally because the snapshot omits supporting CSS.
+ */
+:root {
+  color-scheme: light;
+  --background: #fafafa;
+  --foreground: #202020;
+  --surface: #fff;
+  --muted: #737373;
+  --default: #e5e5e5;
+  --default-hover: #f5f5f5;
+  --accent: #242424;
+  --accent-foreground: #fff;
+  --accent-hover: #3d3d3d;
+  --success: #218358;
+  --danger: #c9372c;
+  --border: #dcdcdc;
+  --separator: #ededed;
+  --field-radius: 8px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--foreground);
+  background: var(--surface);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group > label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+input[type="text"],
+select {
+  appearance: none;
+  width: 100%;
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--field-radius);
+  outline: none;
+  background-color: var(--surface);
+  color: var(--foreground);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+select {
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+}
+
+input::placeholder {
+  color: var(--muted);
+}
+
+input[type="text"]:focus,
+select:focus {
+  border-color: #999;
+  box-shadow: 0 0 0 3px rgb(0 0 0 / 5%);
+}
+
+.btn,
+.btn-small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 100ms ease, border-color 100ms ease;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  border-color: var(--accent);
+}
+
+.btn-small {
+  flex-shrink: 0;
+  width: 36px;
+  padding: 0;
+  font-size: 20px;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.btn:focus-visible,
+.btn-small:focus-visible,
+.switch:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+button:disabled,
+input:disabled,
+select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-group > .switch-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 24px;
+  margin-bottom: 0;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.switch {
+  appearance: none;
+  position: relative;
+  flex-shrink: 0;
+  width: 36px;
+  height: 20px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--default);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.switch::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 12%);
+  transition: transform 200ms ease;
+}
+
+.switch:checked {
+  background: var(--accent);
+}
+
+.switch:checked::before {
+  transform: translateX(16px);
+}
+
+.hint {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.hint a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.hint a:hover {
+  text-decoration: underline;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--separator);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-links a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: var(--foreground);
+  text-decoration: underline;
+}
+
+.footer-links a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgb(255 255 255 / 35%);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 600ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (hover: hover) {
+  .btn:hover:not(:disabled),
+  .btn-small:hover:not(:disabled) {
+    background-color: var(--default-hover);
+  }
+
+  input[type="text"]:hover:not(:focus):not(:disabled),
+  select:hover:not(:focus):not(:disabled) {
+    border-color: #b5b5b5;
+  }
+
+  .switch:hover:not(:checked):not(:disabled) {
+    background-color: #d6d6d6;
+  }
+
+  .btn-primary:hover:not(:disabled),
+  .switch:checked:hover:not(:disabled) {
+    background-color: var(--accent-hover);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button,
+  input,
+  input::before,
+  select {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .switch {
+    appearance: auto;
+  }
+
+  .switch::before {
+    display: none;
+  }
+}
