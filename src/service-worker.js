@@ -39,7 +39,8 @@ chrome.action.onClicked.addListener((tab) => {
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === 'TickTickWebClipperSelection') {
         getSelectionInfo(info, tab, (selection) => {
-            info.selectionText = selection;
+            info.selectionText = selection.text;
+            info.selectionMarkdown = selection.markdown;
             clipToTickTick(tab, info);
         });
     } else if (info.menuItemId === 'TickTickWebClipperPage') {
@@ -79,7 +80,7 @@ async function handleMessage(message, sender, sendResponse) {
                 break;
 
             case 'setOptions':
-                await storage.set(message.payload);
+                await storage.saveOptions(message.payload);
                 // Update popup state when usePopup setting changes
                 if ('usePopup' in message.payload) {
                     updatePopupState();

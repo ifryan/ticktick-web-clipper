@@ -237,14 +237,14 @@ async function showPageToast(tabId, { type, title, message, viewUrl, taskData })
  * @param {object} [contextInfo] - Context menu info (optional)
  */
 export async function clipToTickTick(tab, contextInfo) {
+    const options = await storage.loadOptions();
+    const { apiDomain, webBase, token } = await storage.getDomainConfig(options.apiDomain);
+
     // Check authorization
-    if (!await ticktickApi.authorized()) {
+    if (!token) {
         chrome.runtime.openOptionsPage();
         return;
     }
-
-    const options = await storage.loadOptions();
-    const { webBase } = await storage.getDomainConfig();
 
     // Build task data
     let plainTitle = tab.title;
@@ -254,17 +254,27 @@ export async function clipToTickTick(tab, contextInfo) {
 
     // Handle selected text
     if (contextInfo && contextInfo.selectionText) {
+        const selectionContent = contextInfo.selectionMarkdown || contextInfo.selectionText;
         if (options.taskTitle === 'selectedText') {
             if (options.includePageContent) {
-                taskData.content = `# ${taskData.title}\n\n${await getTabContentAsMarkdown(tab)}`;
+                taskData.content = `${selectionContent}\n\n# ${taskData.title}\n\n${await getTabContentAsMarkdown(tab)}`;
             } else {
-                taskData.content = taskData.title;
+                taskData.content = `${selectionContent}\n\n${taskData.title}`;
             }
-            taskData.title = `[${contextInfo.selectionText}](${tab.url})`;
-            plainTitle = contextInfo.selectionText;
         } else {
-            taskData.content = contextInfo.selectionText;
+            taskData.content = selectionContent;
         }
+
+        const selectionText = contextInfo.selectionText.replace(/\s+/g, ' ').trim();
+        const titleCharacters = Array.from(selectionText);
+        const selectionSummary = titleCharacters.length > 80
+            ? `${titleCharacters.slice(0, 80).join('')}…`
+            : selectionText;
+        plainTitle = options.taskTitle === 'selectedText'
+            ? selectionSummary
+            : `${tab.title} · ${selectionSummary}`;
+        const titleLabel = plainTitle.replace(/[\\[\]]/g, '\\$&');
+        taskData.title = `[${titleLabel}](${tab.url})`;
     } else if (options.includePageContent) {
         taskData.content = await getTabContentAsMarkdown(tab);
     }
@@ -315,11 +325,11 @@ export async function clipToTickTick(tab, contextInfo) {
     }
 
     try {
-        const response = await ticktickApi.task.create(taskData);
+        const response = await ticktickApi.task.create(taskData, apiDomain);
 
         if (!response.ok) {
             if (response.status === 401) {
-                await storage.remove('token');
+                await ticktickApi.logout(apiDomain);
                 chrome.runtime.openOptionsPage();
                 return;
             }
@@ -359,21 +369,19 @@ export async function clipToTickTick(tab, contextInfo) {
 }
 
 /**
- * Get selected text from the active tab (richer than contextInfo.selectionText)
+ * Extract selected text and Markdown from the frame where the menu was opened.
  */
 export function getSelectionInfo(info, tab, callback) {
     chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        function: () => getSelection().toString()
+        target: { tabId: tab.id, frameIds: [info.frameId ?? 0] },
+        files: ['/lib/turndown.js', '/js/selection-script.js']
     }, (response) => {
-        let selection = info.selectionText;
+        const selection = chrome.runtime.lastError ? null : response?.[0]?.result;
+        const text = selection?.text || info.selectionText;
 
-        if (!chrome.runtime.lastError && response && response.length > 0 && response[0].result) {
-            selection = response[0].result;
-        }
-
-        // Normalize line breaks for better readability
-        selection = selection.replace(/(\r\n|\n|\r)/gm, '\n\n');
-        callback(selection);
+        callback({
+            text: text.replace(/(\r\n|\n|\r)/gm, '\n\n'),
+            markdown: selection?.markdown || ''
+        });
     });
 }

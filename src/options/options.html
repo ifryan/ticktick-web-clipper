@@ -18,6 +18,14 @@
       <p class="header-desc">一键剪藏当前网页至滴答清单</p>
     </header>
 
+    <div class="form-group">
+      <label for="api-domain">服务版本</label>
+      <select id="api-domain">
+        <option value="dida365">国内版 (dida365.com)</option>
+        <option value="ticktick">国际版 (ticktick.com)</option>
+      </select>
+    </div>
+
     <!-- Auth Status Banner -->
     <div id="auth-status" class="auth-banner auth-logged-out">
       <span><span class="auth-dot"></span><span id="auth-text">未登录</span></span>
@@ -26,9 +34,9 @@
     </div>
 
     <!-- API Configuration (Collapsible) -->
-    <section id="api-config-card" class="card card-collapsible">
+    <section id="api-config-card" class="card card-collapsible collapsed">
       <div class="card-header" id="api-config-toggle">
-        <h2 class="card-title">API 配置</h2>
+        <h2 class="card-title">高级授权设置</h2>
         <span class="card-toggle">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round">
@@ -38,23 +46,12 @@
       </div>
       <div class="card-body">
         <div class="form-group">
-          <label for="api-domain">服务版本</label>
-          <select id="api-domain">
-            <option value="dida365">国内版 (dida365.com)</option>
-            <option value="ticktick">国际版 (ticktick.com)</option>
-          </select>
-        </div>
-        <div class="form-group">
           <label for="client-id">Client ID</label>
-          <input type="text" id="client-id" placeholder="输入 Client ID">
-        </div>
-        <div class="form-group">
-          <label for="client-secret">Client Secret</label>
-          <input type="password" id="client-secret" placeholder="输入 Client Secret">
+          <input type="text" id="client-id" placeholder="留空使用内置应用">
           <p class="hint">
             前往
             <a id="dev-portal-link" href="https://developer.dida365.com" target="_blank">开发者平台</a>
-            注册应用获取凭据，OAuth 回调地址：
+            配置自建应用时，登记以下 OAuth 回调地址：
             <code id="redirect-uri"></code>
           </p>
         </div>
@@ -67,7 +64,7 @@
       <div class="form-group">
         <label for="task-title-source">标题来源</label>
         <select id="task-title-source">
-          <option value="tabTitle">页面标题</option>
+          <option value="tabTitle">页面标题（选中时附加摘要）</option>
           <option value="selectedText">选中文字（右键菜单时）</option>
         </select>
       </div>

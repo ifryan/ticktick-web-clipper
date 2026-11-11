@@ -16,7 +16,6 @@ const elements = {
     apiConfigToggle: $('api-config-toggle'),
     apiDomain: $('api-domain'),
     clientId: $('client-id'),
-    clientSecret: $('client-secret'),
     devPortalLink: $('dev-portal-link'),
     redirectUri: $('redirect-uri'),
 
@@ -61,7 +60,6 @@ async function loadOptions() {
 
     elements.apiDomain.value = opts.apiDomain || 'dida365';
     elements.clientId.value = opts.clientId || '';
-    elements.clientSecret.value = opts.clientSecret || '';
     elements.taskTitleSource.value = opts.taskTitle || 'tabTitle';
     elements.taskPriority.value = String(opts.taskPriority || 0);
     elements.dueDate.value = String(opts.dueDate ?? -1);
@@ -72,6 +70,7 @@ async function loadOptions() {
     elements.usePopup.checked = !!opts.usePopup;
 
     // Set target list
+    elements.targetList.innerHTML = '<option value="">收件箱（默认）</option>';
     if (opts.targetListId) {
         const option = document.createElement('option');
         option.value = opts.targetListId;
@@ -88,6 +87,7 @@ async function checkLoginStatus() {
     const response = await sendMessage('isLoggedIn');
     const isLoggedIn = response && response.success && response.data;
     updateAuthUI(isLoggedIn);
+    return isLoggedIn;
 }
 
 function updateAuthUI(isLoggedIn) {
@@ -96,15 +96,11 @@ function updateAuthUI(isLoggedIn) {
         elements.authText.textContent = '已登录';
         elements.btnLogin.style.display = 'none';
         elements.btnLogout.style.display = 'inline-block';
-        // Collapse API config when logged in
-        elements.apiConfigCard.classList.add('collapsed');
     } else {
         elements.authStatus.className = 'auth-banner auth-logged-out';
         elements.authText.textContent = '未登录';
         elements.btnLogin.style.display = 'inline-block';
         elements.btnLogout.style.display = 'none';
-        // Expand API config when not logged in
-        elements.apiConfigCard.classList.remove('collapsed');
     }
 }
 
@@ -128,45 +124,81 @@ function bindEvents() {
 
     // Login
     elements.btnLogin.addEventListener('click', async () => {
-        await saveOption('clientId', elements.clientId.value.trim());
-        await saveOption('clientSecret', elements.clientSecret.value.trim());
-
-        elements.btnLogin.disabled = true;
+        setAccountBusy(true);
         elements.btnLogin.innerHTML = '<span class="spinner"></span>登录中...';
 
-        const response = await sendMessage('login');
+        try {
+            const saved = await saveOptions({
+                clientId: elements.clientId.value.trim(),
+                apiDomain: elements.apiDomain.value
+            });
+            if (!saved?.success) {
+                throw new Error(saved?.error || '保存授权配置失败');
+            }
 
-        elements.btnLogin.disabled = false;
-        elements.btnLogin.innerHTML = '登录';
-
-        if (response && response.success) {
+            const response = await sendMessage('login');
+            if (!response?.success) {
+                throw new Error(response?.error || '未知错误');
+            }
             updateAuthUI(true);
-            loadProjectLists();
-        } else {
-            alert('登录失败: ' + (response?.error || '未知错误'));
+            await loadProjectLists();
+        } catch (error) {
+            alert('登录失败: ' + error.message);
+        } finally {
+            setAccountBusy(false);
+            elements.btnLogin.innerHTML = '登录';
         }
     });
 
     // Logout
     elements.btnLogout.addEventListener('click', async () => {
-        await sendMessage('logout');
-        updateAuthUI(false);
+        setAccountBusy(true);
+        try {
+            const response = await sendMessage('logout');
+            if (!response?.success) {
+                throw new Error(response?.error || '未知错误');
+            }
+            updateAuthUI(false);
+        } catch (error) {
+            alert('登出失败: ' + error.message);
+        } finally {
+            setAccountBusy(false);
+        }
     });
 
     // Refresh project lists
-    elements.btnRefreshLists.addEventListener('click', () => loadProjectLists());
+    elements.btnRefreshLists.addEventListener('click', async () => {
+        setAccountBusy(true);
+        try {
+            await loadProjectLists();
+        } finally {
+            setAccountBusy(false);
+        }
+    });
 
     // Auto-save on change
-    elements.apiDomain.addEventListener('change', () => {
-        saveOption('apiDomain', elements.apiDomain.value);
-        updateDevPortalLink();
+    elements.apiDomain.addEventListener('change', async () => {
+        setAccountBusy(true);
+        try {
+            const response = await saveOption('apiDomain', elements.apiDomain.value);
+            if (!response?.success) {
+                throw new Error(response?.error || '保存服务版本失败');
+            }
+            await loadOptions();
+            if (await checkLoginStatus()) {
+                await loadProjectLists();
+            }
+        } catch (error) {
+            alert('切换服务失败: ' + error.message);
+            await loadOptions();
+            await checkLoginStatus();
+        } finally {
+            setAccountBusy(false);
+        }
     });
 
     elements.clientId.addEventListener('change', () =>
         saveOption('clientId', elements.clientId.value.trim()));
-
-    elements.clientSecret.addEventListener('change', () =>
-        saveOption('clientSecret', elements.clientSecret.value.trim()));
 
     elements.taskTitleSource.addEventListener('change', () =>
         saveOption('taskTitle', elements.taskTitleSource.value));
@@ -207,7 +239,18 @@ function saveOption(key, value) {
 }
 
 function saveOptions(payload) {
-    return sendMessage('setOptions', payload);
+    return sendMessage('setOptions', { apiDomain: elements.apiDomain.value, ...payload });
+}
+
+function setAccountBusy(busy) {
+    [
+        elements.apiDomain,
+        elements.clientId,
+        elements.btnLogin,
+        elements.btnLogout,
+        elements.btnRefreshLists,
+        elements.targetList
+    ].forEach(element => element.disabled = busy);
 }
 
 // ─── Load Project Lists ──────────────────
