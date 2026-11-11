@@ -5,25 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TickTick Web Clipper</title>
+    <link rel="stylesheet" href="../styles/ui.css">
     <link rel="stylesheet" href="popup.css">
 </head>
 
 <body>
     <div class="popup-container">
+        <header class="form-header">
+            <img src="../icons/icon32.png" alt="" class="form-icon">
+            <div class="form-heading">
+                <span class="form-title">网页剪藏</span>
+                <p id="popup-account" class="account-summary" aria-live="polite">正在读取登录信息…</p>
+            </div>
+        </header>
+
         <!-- Not logged in state -->
         <div id="not-logged-in" style="display:none;">
-            <div class="status-icon">🔒</div>
-            <p class="status-text">请先登录滴答清单</p>
+            <p class="status-text">请先登录后再剪藏</p>
             <button id="btn-go-options" class="btn btn-primary btn-full">打开设置</button>
         </div>
 
         <!-- Ready to clip state -->
         <div id="clip-form" style="display:none;">
-            <div class="form-header">
-                <img src="../icons/icon32.png" alt="" class="form-icon">
-                <span class="form-title">剪藏到滴答清单</span>
-            </div>
-
             <div class="form-group">
                 <label for="popup-title">标题</label>
                 <input type="text" id="popup-title" placeholder="加载中...">
@@ -52,35 +55,45 @@
                         <option value="-1">不设置</option>
                         <option value="0">今天</option>
                         <option value="1">明天</option>
+                        <option value="2">后天</option>
                         <option value="7">一周后</option>
                     </select>
                 </div>
             </div>
 
-            <div class="form-group checkbox-inline">
-                <label>
-                    <input type="checkbox" id="popup-content" checked>
+            <div class="form-group">
+                <label class="switch-label">
                     <span>包含正文</span>
+                    <input type="checkbox" role="switch" class="switch" id="popup-content" checked>
                 </label>
             </div>
 
             <button id="btn-clip" class="btn btn-primary btn-full">
-                ✨ 保存到滴答清单
+                保存到滴答清单
             </button>
         </div>
 
         <!-- Success state -->
         <div id="clip-success" style="display:none;">
-            <div class="status-icon">✅</div>
+            <div class="status-icon status-icon-success" aria-hidden="true">✓</div>
             <p class="status-text">已保存到滴答清单!</p>
         </div>
 
         <!-- Error state -->
         <div id="clip-error" style="display:none;">
-            <div class="status-icon">❌</div>
+            <div class="status-icon status-icon-error" aria-hidden="true">!</div>
             <p class="status-text" id="error-message">创建失败</p>
             <button id="btn-retry" class="btn btn-secondary btn-full">重试</button>
         </div>
+
+        <footer class="footer">
+            <span>v1.0.0</span>
+            <nav class="footer-links" aria-label="作者链接">
+                <a href="https://ryanhuang.space" target="_blank" rel="noopener noreferrer">@ifryanx</a>
+                <a href="https://x.com/ryanhuangcn" target="_blank" rel="noopener noreferrer">X</a>
+                <a href="https://github.com/ifryan" target="_blank" rel="noopener noreferrer">GitHub</a>
+            </nav>
+        </footer>
     </div>
 
     <script src="popup.js" type="module"></script>

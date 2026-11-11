@@ -74,6 +74,18 @@ async function handleMessage(message, sender, sendResponse) {
                 sendResponse({ success: true, data: isLoggedIn });
                 break;
 
+            case 'getAccountInfo':
+                const accountInfo = await ticktickApi.getAccountInfo();
+                const version = accountInfo.apiDomain === 'dida365' ? '国内版' : '国际版';
+                const accountLabel = accountInfo.isLoggedIn
+                    ? accountInfo.accountName || '已登录（账号信息暂不可用）'
+                    : '未登录';
+                sendResponse({
+                    success: true,
+                    data: { ...accountInfo, label: `${version} · ${accountLabel}` }
+                });
+                break;
+
             case 'getOptions':
                 const opts = await storage.loadOptions();
                 sendResponse({ success: true, data: opts });

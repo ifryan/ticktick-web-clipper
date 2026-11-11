@@ -1,7 +1,6 @@
 /**
  * Options Page Logic
- * Handles: load/save settings, login/logout, refresh project lists,
- * collapsible API config section
+ * Handles: load/save settings, login/logout, account info, refresh project lists
  */
 
 const $ = (id) => document.getElementById(id);
@@ -12,12 +11,7 @@ const elements = {
     btnLogin: $('btn-login'),
     btnLogout: $('btn-logout'),
 
-    apiConfigCard: $('api-config-card'),
-    apiConfigToggle: $('api-config-toggle'),
     apiDomain: $('api-domain'),
-    clientId: $('client-id'),
-    devPortalLink: $('dev-portal-link'),
-    redirectUri: $('redirect-uri'),
 
     taskTitleSource: $('task-title-source'),
     targetList: $('target-list'),
@@ -41,11 +35,6 @@ function sendMessage(type, payload) {
 
 // ─── Init ────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
-    // Show redirect URI
-    if (chrome.identity && chrome.identity.getRedirectURL) {
-        elements.redirectUri.textContent = chrome.identity.getRedirectURL();
-    }
-
     await loadOptions();
     await checkLoginStatus();
     bindEvents();
@@ -59,7 +48,6 @@ async function loadOptions() {
     const opts = response.data;
 
     elements.apiDomain.value = opts.apiDomain || 'dida365';
-    elements.clientId.value = opts.clientId || '';
     elements.taskTitleSource.value = opts.taskTitle || 'tabTitle';
     elements.taskPriority.value = String(opts.taskPriority || 0);
     elements.dueDate.value = String(opts.dueDate ?? -1);
@@ -78,8 +66,6 @@ async function loadOptions() {
         option.selected = true;
         elements.targetList.appendChild(option);
     }
-
-    updateDevPortalLink();
 }
 
 // ─── Check Login Status ──────────────────
@@ -87,41 +73,37 @@ async function checkLoginStatus() {
     const response = await sendMessage('isLoggedIn');
     const isLoggedIn = response && response.success && response.data;
     updateAuthUI(isLoggedIn);
+    if (isLoggedIn) loadAccountInfo();
     return isLoggedIn;
 }
 
 function updateAuthUI(isLoggedIn) {
+    const version = elements.apiDomain.value === 'dida365' ? '国内版' : '国际版';
+    elements.authText.textContent = `${version} · ${isLoggedIn ? '正在读取账号…' : '未登录'}`;
     if (isLoggedIn) {
         elements.authStatus.className = 'auth-banner auth-logged-in';
-        elements.authText.textContent = '已登录';
         elements.btnLogin.style.display = 'none';
-        elements.btnLogout.style.display = 'inline-block';
+        elements.btnLogout.style.display = '';
     } else {
         elements.authStatus.className = 'auth-banner auth-logged-out';
-        elements.authText.textContent = '未登录';
-        elements.btnLogin.style.display = 'inline-block';
+        elements.btnLogin.style.display = '';
         elements.btnLogout.style.display = 'none';
     }
 }
 
-// ─── Update Dev Portal Link ──────────────
-function updateDevPortalLink() {
-    const isDida = elements.apiDomain.value === 'dida365';
-    elements.devPortalLink.href = isDida
-        ? 'https://developer.dida365.com'
-        : 'https://developer.ticktick.com';
-    elements.devPortalLink.textContent = isDida
-        ? 'developer.dida365.com'
-        : 'developer.ticktick.com';
+async function loadAccountInfo() {
+    const domain = elements.apiDomain.value;
+    const response = await sendMessage('getAccountInfo');
+    if (domain !== elements.apiDomain.value || !elements.authStatus.classList.contains('auth-logged-in')) return;
+
+    const version = domain === 'dida365' ? '国内版' : '国际版';
+    elements.authText.textContent = response?.success
+        ? response.data.label
+        : `${version} · 已登录（账号信息暂不可用）`;
 }
 
 // ─── Bind Events ─────────────────────────
 function bindEvents() {
-    // Toggle API config section
-    elements.apiConfigToggle.addEventListener('click', () => {
-        elements.apiConfigCard.classList.toggle('collapsed');
-    });
-
     // Login
     elements.btnLogin.addEventListener('click', async () => {
         setAccountBusy(true);
@@ -129,7 +111,6 @@ function bindEvents() {
 
         try {
             const saved = await saveOptions({
-                clientId: elements.clientId.value.trim(),
                 apiDomain: elements.apiDomain.value
             });
             if (!saved?.success) {
@@ -140,7 +121,7 @@ function bindEvents() {
             if (!response?.success) {
                 throw new Error(response?.error || '未知错误');
             }
-            updateAuthUI(true);
+            await checkLoginStatus();
             await loadProjectLists();
         } catch (error) {
             alert('登录失败: ' + error.message);
@@ -197,9 +178,6 @@ function bindEvents() {
         }
     });
 
-    elements.clientId.addEventListener('change', () =>
-        saveOption('clientId', elements.clientId.value.trim()));
-
     elements.taskTitleSource.addEventListener('change', () =>
         saveOption('taskTitle', elements.taskTitleSource.value));
 
@@ -245,7 +223,6 @@ function saveOptions(payload) {
 function setAccountBusy(busy) {
     [
         elements.apiDomain,
-        elements.clientId,
         elements.btnLogin,
         elements.btnLogout,
         elements.btnRefreshLists,
