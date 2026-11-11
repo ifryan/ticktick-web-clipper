@@ -2,6 +2,12 @@
  * Chrome Storage Wrapper
  * Manages extension settings with chrome.storage.sync
  */
+const DEFAULT_CLIENT_IDS = {
+  dida365: '0Ece5vu6cI93KzPUax',
+  ticktick: 'NsXrQ7s86K757MKy7a'
+};
+const ACCOUNT_FIELDS = ['clientId', 'token', 'targetListId', 'targetListName'];
+
 export const storage = {
   location: chrome.storage.sync,
 
@@ -9,7 +15,6 @@ export const storage = {
     // API / Auth
     apiDomain: 'dida365',         // 'dida365' (国内版) or 'ticktick' (国际版)
     clientId: '',
-    clientSecret: '',
 
     // Task settings
     showNotification: true,
@@ -29,10 +34,17 @@ export const storage = {
   /**
    * Get API domain URLs based on current setting
    */
-  async getDomainConfig() {
+  async getDomainConfig(apiDomain) {
     const opts = await this.loadOptions();
-    const isDida = opts.apiDomain === 'dida365';
+    const domain = apiDomain ?? opts.apiDomain;
+    const clientIdKey = `${domain}.clientId`;
+    const tokenKey = `${domain}.token`;
+    const account = await this.get([clientIdKey, tokenKey]);
+    const isDida = domain === 'dida365';
     return {
+      apiDomain: domain,
+      clientId: account[clientIdKey] || DEFAULT_CLIENT_IDS[domain],
+      token: account[tokenKey],
       oauthBase: isDida ? 'https://dida365.com/oauth' : 'https://ticktick.com/oauth',
       apiBase: isDida ? 'https://api.dida365.com/open/v1' : 'https://api.ticktick.com/open/v1',
       webBase: isDida ? 'https://dida365.com' : 'https://ticktick.com'
@@ -66,18 +78,45 @@ export const storage = {
     });
   },
 
-  async loadOptions() {
-    const storedOptions = await this.location.get(Object.keys(this.defaults));
+  async saveOptions(options) {
+    const current = await this.loadOptions();
+    const domain = options.apiDomain ?? current.apiDomain;
+    const updates = Object.fromEntries(Object.entries(options).map(([key, value]) => [
+      ACCOUNT_FIELDS.includes(key) ? `${domain}.${key}` : key,
+      value
+    ]));
+    await this.set(updates);
+  },
 
-    // Fill in defaults for any missing keys
-    for (const [key, value] of Object.entries(this.defaults)) {
-      if (storedOptions[key] === undefined) {
-        storedOptions[key] = value;
+  async loadOptions() {
+    const accountKeys = Object.keys(DEFAULT_CLIENT_IDS).flatMap(domain =>
+      ACCOUNT_FIELDS.map(key => `${domain}.${key}`)
+    );
+    const stored = await this.location.get([...Object.keys(this.defaults), 'token', ...accountKeys]);
+    const domain = stored.apiDomain ?? this.defaults.apiDomain;
+    await this.migrateLegacyAccount(stored, domain);
+
+    return Object.fromEntries(Object.entries(this.defaults).map(([key, value]) => {
+      const storedKey = ACCOUNT_FIELDS.includes(key) ? `${domain}.${key}` : key;
+      return [key, stored[storedKey] ?? value];
+    }));
+  },
+
+  async migrateLegacyAccount(stored, domain) {
+    const legacyKeys = ACCOUNT_FIELDS.filter(key => stored[key] !== undefined);
+    if (!legacyKeys.length) return;
+
+    const updates = {};
+    for (const key of legacyKeys) {
+      const accountKey = `${domain}.${key}`;
+      if (stored[accountKey] === undefined) {
+        updates[accountKey] = stored[key];
+        stored[accountKey] = stored[key];
       }
     }
 
-    // Persist defaults back to storage
-    await this.set(storedOptions);
-    return storedOptions;
+    // Bind old account settings to the selected service before removing global keys.
+    if (Object.keys(updates).length) await this.set(updates);
+    await this.remove(legacyKeys);
   }
 };
