@@ -3,10 +3,10 @@
     "message": "en"
   },
   "extensionName": {
-    "message": "TickTick Web Clipper"
+    "message": "Web Clipper for TickTick & Dida365"
   },
   "extensionDescription": {
-    "message": "Save web pages, selected text, and articles to TickTick or Dida365 with one click."
+    "message": "Unofficial: save web pages, selected text, and articles to TickTick or Dida365 in one click. Not affiliated with TickTick."
   },
   "actionTitle": {
     "message": "Save to TickTick / Dida365"
@@ -36,7 +36,7 @@
     }
   },
   "optionsTitle": {
-    "message": "TickTick Web Clipper Settings"
+    "message": "Web Clipper for TickTick & Dida365 Settings"
   },
   "accountHeading": {
     "message": "Account"

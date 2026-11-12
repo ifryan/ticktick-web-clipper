@@ -50,7 +50,7 @@
             markdown: turndownService.turndown(container)
         };
     } catch (error) {
-        console.error('TickTick Web Clipper: selection extraction failed', error);
+        console.error('Web Clipper: selection extraction failed', error);
         return null;
     }
 })();
