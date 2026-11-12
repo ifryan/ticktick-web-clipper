@@ -4,6 +4,7 @@
  */
 import { storage } from './store.js';
 import { ticktickApi } from './ticktick-api.js';
+import { t } from './i18n.js';
 
 /**
  * Extract page content as Markdown by injecting scripts into the active tab
@@ -34,7 +35,12 @@ async function showPageToast(tabId, { type, title, message, viewUrl, taskData })
     try {
         await chrome.scripting.executeScript({
             target: { tabId },
-            args: [{ type, title, message, viewUrl, taskData }],
+            args: [{
+                type, title, message, viewUrl, taskData,
+                viewTaskLabel: t('viewTask'),
+                closeLabel: t('closeNotification'),
+                lang: t('localeCode')
+            }],
             func: (opts) => {
                 // Remove any existing toast
                 const existing = document.getElementById('__ticktick_clipper_toast');
@@ -181,13 +187,14 @@ async function showPageToast(tabId, { type, title, message, viewUrl, taskData })
 
                 const toast = document.createElement('div');
                 toast.id = '__ticktick_clipper_toast';
+                toast.lang = opts.lang;
                 if (opts.type === 'loading') toast.classList.add('tt-loading');
 
                 let actionsHtml = '';
                 if (opts.type === 'success' && opts.viewUrl) {
                     actionsHtml = `
                         <div class="tt-toast-actions">
-                            <a href="${opts.viewUrl}" target="_blank">查看任务</a>
+                            <a target="_blank" rel="noopener noreferrer"></a>
                         </div>
                     `;
                 }
@@ -197,8 +204,8 @@ async function showPageToast(tabId, { type, title, message, viewUrl, taskData })
                         <div class="tt-toast-body">
                             <span class="tt-toast-icon">${iconMap[opts.type] || '📌'}</span>
                             <div class="tt-toast-content">
-                                <p class="tt-toast-title">${opts.title}</p>
-                                <p class="tt-toast-msg">${opts.message}</p>
+                                <p class="tt-toast-title"></p>
+                                <p class="tt-toast-msg"></p>
                             </div>
                             <button class="tt-toast-close">×</button>
                         </div>
@@ -207,6 +214,14 @@ async function showPageToast(tabId, { type, title, message, viewUrl, taskData })
                     </div>
                 `;
 
+                toast.querySelector('.tt-toast-title').textContent = opts.title;
+                toast.querySelector('.tt-toast-msg').textContent = opts.message;
+                toast.querySelector('.tt-toast-close').setAttribute('aria-label', opts.closeLabel);
+                const viewLink = toast.querySelector('.tt-toast-actions a');
+                if (viewLink) {
+                    viewLink.href = opts.viewUrl;
+                    viewLink.textContent = opts.viewTaskLabel;
+                }
                 document.body.appendChild(toast);
 
                 // Close button
@@ -244,7 +259,7 @@ export async function clipToTickTick(tab, contextInfo, overrides = {}) {
     // Check authorization
     if (!token) {
         chrome.runtime.openOptionsPage();
-        return { success: false, error: '请先登录后再剪藏' };
+        return { success: false, error: t('signInRequired') };
     }
 
     // Build task data
@@ -313,15 +328,15 @@ export async function clipToTickTick(tab, contextInfo, overrides = {}) {
             .join(' ');
 
         taskData.content = taskData.content
-            ? `${taskData.content}\n\nTags: ${tags}`
-            : `Tags: ${tags}`;
+            ? `${taskData.content}\n\n${t('tags')}: ${tags}`
+            : `${t('tags')}: ${tags}`;
     }
 
     // Show loading toast
     if (options.showNotification) {
         await showPageToast(tab.id, {
             type: 'loading',
-            title: '正在创建任务...',
+            title: t('creatingTask'),
             message: plainTitle
         });
     }
@@ -333,9 +348,9 @@ export async function clipToTickTick(tab, contextInfo, overrides = {}) {
             if (response.status === 401) {
                 await ticktickApi.logout(apiDomain);
                 chrome.runtime.openOptionsPage();
-                throw new Error('登录已过期，请重新登录后重试');
+                throw new Error(t('loginExpired'));
             }
-            throw new Error(`任务创建失败: HTTP ${response.status}`);
+            throw new Error(t('createTaskHttpError', String(response.status)));
         }
 
         const data = await response.json();
@@ -346,7 +361,7 @@ export async function clipToTickTick(tab, contextInfo, overrides = {}) {
             const viewUrl = `${webBase}/webapp/#p/${data.projectId}/tasks/${data.id}`;
             await showPageToast(tab.id, {
                 type: 'success',
-                title: '任务已创建',
+                title: t('taskCreated'),
                 message: plainTitle,
                 viewUrl,
                 taskData: { projectId: data.projectId, id: data.id }
@@ -364,7 +379,7 @@ export async function clipToTickTick(tab, contextInfo, overrides = {}) {
         if (options.showNotification) {
             await showPageToast(tab.id, {
                 type: 'error',
-                title: '任务创建失败',
+                title: t('createTaskFailed'),
                 message: error.message
             });
         }

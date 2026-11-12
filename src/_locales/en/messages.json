@@ -1,0 +1,363 @@
+{
+  "localeCode": {
+    "message": "en"
+  },
+  "extensionName": {
+    "message": "TickTick Web Clipper"
+  },
+  "extensionDescription": {
+    "message": "Save web pages, selected text, and articles to TickTick or Dida365 with one click."
+  },
+  "actionTitle": {
+    "message": "Save to TickTick / Dida365"
+  },
+  "actionTitleService": {
+    "message": "Save to $SERVICE$",
+    "placeholders": {
+      "service": {
+        "content": "$1"
+      }
+    }
+  },
+  "contextClipPage": {
+    "message": "Save page to $SERVICE$",
+    "placeholders": {
+      "service": {
+        "content": "$1"
+      }
+    }
+  },
+  "contextClipSelection": {
+    "message": "Save selection to $SERVICE$",
+    "placeholders": {
+      "service": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsTitle": {
+    "message": "TickTick Web Clipper Settings"
+  },
+  "accountHeading": {
+    "message": "Account"
+  },
+  "serviceVersion": {
+    "message": "Service"
+  },
+  "serviceDidaOption": {
+    "message": "Dida365 — China (dida365.com)"
+  },
+  "serviceTickTickOption": {
+    "message": "TickTick — International (ticktick.com)"
+  },
+  "serviceDida": {
+    "message": "Dida365"
+  },
+  "serviceTickTick": {
+    "message": "TickTick"
+  },
+  "signedOut": {
+    "message": "Not signed in"
+  },
+  "signIn": {
+    "message": "Sign in"
+  },
+  "signOut": {
+    "message": "Sign out"
+  },
+  "signingIn": {
+    "message": "Signing in…"
+  },
+  "loadingAccount": {
+    "message": "Loading account…"
+  },
+  "loadingLogin": {
+    "message": "Loading sign-in status…"
+  },
+  "accountUnavailable": {
+    "message": "Account details unavailable"
+  },
+  "accountUnavailableSignedIn": {
+    "message": "Signed in (account details unavailable)"
+  },
+  "accountLabel": {
+    "message": "$SERVICE$ · $STATUS$",
+    "placeholders": {
+      "service": {
+        "content": "$1"
+      },
+      "status": {
+        "content": "$2"
+      }
+    }
+  },
+  "taskHeading": {
+    "message": "Task defaults"
+  },
+  "titleSource": {
+    "message": "Title source"
+  },
+  "pageTitleOption": {
+    "message": "Page title (append a summary of selected text)"
+  },
+  "selectionTitleOption": {
+    "message": "Selected text (context menu)"
+  },
+  "targetList": {
+    "message": "Default list"
+  },
+  "inboxDefault": {
+    "message": "Inbox (default)"
+  },
+  "refreshLists": {
+    "message": "Refresh lists"
+  },
+  "priority": {
+    "message": "Priority"
+  },
+  "priorityNone": {
+    "message": "None"
+  },
+  "priorityLow": {
+    "message": "Low"
+  },
+  "priorityMedium": {
+    "message": "Medium"
+  },
+  "priorityHigh": {
+    "message": "High"
+  },
+  "dueDate": {
+    "message": "Due date"
+  },
+  "dueNone": {
+    "message": "No due date"
+  },
+  "dueToday": {
+    "message": "Today"
+  },
+  "dueTomorrow": {
+    "message": "Tomorrow"
+  },
+  "dueInTwoDays": {
+    "message": "In 2 days"
+  },
+  "dueInOneWeek": {
+    "message": "In 1 week"
+  },
+  "tags": {
+    "message": "Tags"
+  },
+  "tagsPlaceholder": {
+    "message": "Separate tags with spaces"
+  },
+  "behaviorHeading": {
+    "message": "Clipping"
+  },
+  "includePageContent": {
+    "message": "Include page content"
+  },
+  "includeContentHint": {
+    "message": "Extract the article and save it as Markdown"
+  },
+  "showNotification": {
+    "message": "Show in-page notifications"
+  },
+  "notificationHint": {
+    "message": "Show clipping results on the current page"
+  },
+  "autoClose": {
+    "message": "Close tab after saving"
+  },
+  "usePopup": {
+    "message": "Preview before saving"
+  },
+  "popupHint": {
+    "message": "Review and edit the task when clicking the icon"
+  },
+  "authorLinks": {
+    "message": "Author links"
+  },
+  "popupHeading": {
+    "message": "Web Clipper"
+  },
+  "signInRequired": {
+    "message": "Sign in before saving a page"
+  },
+  "openSettings": {
+    "message": "Open settings"
+  },
+  "taskTitle": {
+    "message": "Title"
+  },
+  "loading": {
+    "message": "Loading…"
+  },
+  "list": {
+    "message": "List"
+  },
+  "inbox": {
+    "message": "Inbox"
+  },
+  "includeContent": {
+    "message": "Include content"
+  },
+  "saveTask": {
+    "message": "Save task"
+  },
+  "saveToService": {
+    "message": "Save to $SERVICE$",
+    "placeholders": {
+      "service": {
+        "content": "$1"
+      }
+    }
+  },
+  "saving": {
+    "message": "Saving…"
+  },
+  "taskSaved": {
+    "message": "Task saved"
+  },
+  "createTaskFailed": {
+    "message": "Failed to create task"
+  },
+  "retry": {
+    "message": "Retry"
+  },
+  "viewTask": {
+    "message": "View task"
+  },
+  "closeNotification": {
+    "message": "Close notification"
+  },
+  "creatingTask": {
+    "message": "Creating task…"
+  },
+  "taskCreated": {
+    "message": "Task created"
+  },
+  "loginExpired": {
+    "message": "Your session has expired. Sign in again and retry."
+  },
+  "createTaskHttpError": {
+    "message": "Failed to create task: HTTP $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "unknownError": {
+    "message": "Unknown error"
+  },
+  "invalidClipOptions": {
+    "message": "Invalid clipping options. Reopen the popup and try again."
+  },
+  "unknownMessage": {
+    "message": "Unknown message type"
+  },
+  "saveAuthFailed": {
+    "message": "Failed to save authorization settings"
+  },
+  "signInFailed": {
+    "message": "Sign-in failed: $DETAIL$",
+    "placeholders": {
+      "detail": {
+        "content": "$1"
+      }
+    }
+  },
+  "signOutFailed": {
+    "message": "Sign-out failed: $DETAIL$",
+    "placeholders": {
+      "detail": {
+        "content": "$1"
+      }
+    }
+  },
+  "saveServiceFailed": {
+    "message": "Failed to save service preference"
+  },
+  "switchServiceFailed": {
+    "message": "Failed to switch service: $DETAIL$",
+    "placeholders": {
+      "detail": {
+        "content": "$1"
+      }
+    }
+  },
+  "projectsHttpError": {
+    "message": "Failed to load lists: HTTP $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "oauthNotConfigured": {
+    "message": "Authorization is not configured for this service. Contact the extension developer."
+  },
+  "oauthCancelled": {
+    "message": "Authorization cancelled"
+  },
+  "oauthCallbackMismatch": {
+    "message": "Authorization callback did not match. Sign in again."
+  },
+  "oauthStateMismatch": {
+    "message": "Authorization verification failed. Sign in again."
+  },
+  "oauthFailed": {
+    "message": "Authorization failed: $DETAIL$",
+    "placeholders": {
+      "detail": {
+        "content": "$1"
+      }
+    }
+  },
+  "oauthCodeMissing": {
+    "message": "No authorization code was returned"
+  },
+  "oauthTokenHttpError": {
+    "message": "Failed to obtain a PKCE token: HTTP $STATUS$ $DETAIL$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      },
+      "detail": {
+        "content": "$2"
+      }
+    }
+  },
+  "oauthTokenMissing": {
+    "message": "Authorization response did not contain a valid access token"
+  },
+  "language": {
+    "message": "Language"
+  },
+  "languageAuto": {
+    "message": "Follow browser"
+  },
+  "invalidLanguage": {
+    "message": "Unsupported interface language"
+  },
+  "switchLanguageFailed": {
+    "message": "Failed to switch language: $DETAIL$",
+    "placeholders": {
+      "detail": {
+        "content": "$1"
+      }
+    }
+  },
+  "loadLanguageFailed": {
+    "message": "Failed to load translations: HTTP $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "languageAutoShort": {
+    "message": "Auto"
+  }
+}

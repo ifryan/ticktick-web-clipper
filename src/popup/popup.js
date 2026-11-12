@@ -2,6 +2,7 @@
  * Popup Page Logic
  * Shows a form to preview/edit task info before clipping
  */
+import { t, initializeI18n, localizePage, serviceName, accountLabel } from '../js/i18n.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -38,9 +39,11 @@ function showView(viewName) {
 
 // ─── Init ─────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
+    await initializeI18n();
+    localizePage();
     const accountInfo = sendMessage('getAccountInfo');
     accountInfo.then(response => {
-        els.popupAccount.textContent = response?.success ? response.data.label : '账号信息暂不可用';
+        els.popupAccount.textContent = response?.success ? accountLabel(response.data) : t('accountUnavailable');
     });
 
     // Check login
@@ -66,6 +69,7 @@ async function initForm() {
     const optResponse = await sendMessage('getOptions');
     if (optResponse?.success) {
         const opts = optResponse.data;
+        els.btnClip.textContent = t('saveToService', serviceName(opts.apiDomain));
         els.popupPriority.value = String(opts.taskPriority || 0);
         els.popupDue.value = String(opts.dueDate ?? -1);
         els.popupContent.checked = opts.includePageContent !== false;
@@ -76,7 +80,7 @@ async function initForm() {
         const projResponse = await sendMessage('getProjects');
         if (projResponse?.success && Array.isArray(projResponse.data)) {
             const currentList = (optResponse?.data?.targetListId) || '';
-            els.popupList.innerHTML = '<option value="">收件箱</option>';
+            els.popupList.replaceChildren(new Option(t('inbox'), ''));
             for (const proj of projResponse.data) {
                 const opt = document.createElement('option');
                 opt.value = proj.id;
@@ -107,8 +111,11 @@ function bindEvents() {
 }
 
 async function handleClip() {
+    const saveLabel = els.btnClip.textContent;
     els.btnClip.disabled = true;
-    els.btnClip.innerHTML = '<span class="spinner"></span>保存中...';
+    const spinner = document.createElement('span');
+    spinner.className = 'spinner';
+    els.btnClip.replaceChildren(spinner, document.createTextNode(t('saving')));
 
     try {
         const result = await sendMessage('clipTab', {
@@ -122,13 +129,13 @@ async function handleClip() {
         if (result?.success) {
             window.close();
         } else {
-            throw new Error(result?.error || '创建任务失败');
+            throw new Error(result?.error || t('createTaskFailed'));
         }
     } catch (error) {
         els.errorMessage.textContent = error.message;
         showView('clipError');
     } finally {
         els.btnClip.disabled = false;
-        els.btnClip.textContent = '保存到滴答清单';
+        els.btnClip.textContent = saveLabel;
     }
 }

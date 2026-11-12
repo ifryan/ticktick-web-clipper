@@ -2,10 +2,13 @@
  * Options Page Logic
  * Handles: load/save settings, login/logout, account info, refresh project lists
  */
+import { t, initializeI18n, setLanguage, localizePage, serviceName, accountLabel } from '../js/i18n.js';
 
 const $ = (id) => document.getElementById(id);
+let currentAccount;
 
 const elements = {
+    language: $('language'),
     authStatus: $('auth-status'),
     authText: $('auth-text'),
     btnLogin: $('btn-login'),
@@ -35,6 +38,8 @@ function sendMessage(type, payload) {
 
 // ─── Init ────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
+    await initializeI18n();
+    localizePage();
     await loadOptions();
     await checkLoginStatus();
     bindEvents();
@@ -47,7 +52,8 @@ async function loadOptions() {
 
     const opts = response.data;
 
-    elements.apiDomain.value = opts.apiDomain || 'dida365';
+    selectLanguage(opts.language);
+    elements.apiDomain.value = opts.apiDomain;
     elements.taskTitleSource.value = opts.taskTitle || 'tabTitle';
     elements.taskPriority.value = String(opts.taskPriority || 0);
     elements.dueDate.value = String(opts.dueDate ?? -1);
@@ -58,7 +64,7 @@ async function loadOptions() {
     elements.usePopup.checked = !!opts.usePopup;
 
     // Set target list
-    elements.targetList.innerHTML = '<option value="">收件箱（默认）</option>';
+    elements.targetList.replaceChildren(new Option(t('inboxDefault'), ''));
     if (opts.targetListId) {
         const option = document.createElement('option');
         option.value = opts.targetListId;
@@ -78,8 +84,15 @@ async function checkLoginStatus() {
 }
 
 function updateAuthUI(isLoggedIn) {
-    const version = elements.apiDomain.value === 'dida365' ? '国内版' : '国际版';
-    elements.authText.textContent = `${version} · ${isLoggedIn ? '正在读取账号…' : '未登录'}`;
+    currentAccount = { apiDomain: elements.apiDomain.value, isLoggedIn, loading: isLoggedIn };
+    renderAuthUI();
+}
+
+function renderAuthUI() {
+    const { isLoggedIn, apiDomain, loading } = currentAccount;
+    elements.authText.textContent = loading
+        ? t('accountLabel', [serviceName(apiDomain), t('loadingAccount')])
+        : accountLabel(currentAccount);
     if (isLoggedIn) {
         elements.authStatus.className = 'auth-banner auth-logged-in';
         elements.btnLogin.style.display = 'none';
@@ -96,38 +109,57 @@ async function loadAccountInfo() {
     const response = await sendMessage('getAccountInfo');
     if (domain !== elements.apiDomain.value || !elements.authStatus.classList.contains('auth-logged-in')) return;
 
-    const version = domain === 'dida365' ? '国内版' : '国际版';
-    elements.authText.textContent = response?.success
-        ? response.data.label
-        : `${version} · 已登录（账号信息暂不可用）`;
+    currentAccount = response?.success ? response.data : { apiDomain: domain, isLoggedIn: true };
+    renderAuthUI();
 }
 
 // ─── Bind Events ─────────────────────────
 function bindEvents() {
+    elements.language.addEventListener('change', async (event) => {
+        const language = event.target.value;
+        elements.language.disabled = true;
+        try {
+            const response = await sendMessage('setOptions', { language });
+            if (!response?.success) throw new Error(response?.error || t('unknownError'));
+            await setLanguage(language);
+            localizePage();
+            elements.targetList.options[0].textContent = t('inboxDefault');
+            renderAuthUI();
+        } catch (error) {
+            alert(t('switchLanguageFailed', error.message));
+            const response = await sendMessage('getOptions');
+            if (response?.success) selectLanguage(response.data.language);
+        } finally {
+            elements.language.disabled = false;
+        }
+    });
+
     // Login
     elements.btnLogin.addEventListener('click', async () => {
         setAccountBusy(true);
-        elements.btnLogin.innerHTML = '<span class="spinner"></span>登录中...';
+        const spinner = document.createElement('span');
+        spinner.className = 'spinner';
+        elements.btnLogin.replaceChildren(spinner, document.createTextNode(t('signingIn')));
 
         try {
             const saved = await saveOptions({
                 apiDomain: elements.apiDomain.value
             });
             if (!saved?.success) {
-                throw new Error(saved?.error || '保存授权配置失败');
+                throw new Error(saved?.error || t('saveAuthFailed'));
             }
 
             const response = await sendMessage('login');
             if (!response?.success) {
-                throw new Error(response?.error || '未知错误');
+                throw new Error(response?.error || t('unknownError'));
             }
             await checkLoginStatus();
             await loadProjectLists();
         } catch (error) {
-            alert('登录失败: ' + error.message);
+            alert(t('signInFailed', error.message));
         } finally {
             setAccountBusy(false);
-            elements.btnLogin.innerHTML = '登录';
+            elements.btnLogin.textContent = t('signIn');
         }
     });
 
@@ -137,11 +169,11 @@ function bindEvents() {
         try {
             const response = await sendMessage('logout');
             if (!response?.success) {
-                throw new Error(response?.error || '未知错误');
+                throw new Error(response?.error || t('unknownError'));
             }
             updateAuthUI(false);
         } catch (error) {
-            alert('登出失败: ' + error.message);
+            alert(t('signOutFailed', error.message));
         } finally {
             setAccountBusy(false);
         }
@@ -163,14 +195,14 @@ function bindEvents() {
         try {
             const response = await saveOption('apiDomain', elements.apiDomain.value);
             if (!response?.success) {
-                throw new Error(response?.error || '保存服务版本失败');
+                throw new Error(response?.error || t('saveServiceFailed'));
             }
             await loadOptions();
             if (await checkLoginStatus()) {
                 await loadProjectLists();
             }
         } catch (error) {
-            alert('切换服务失败: ' + error.message);
+            alert(t('switchServiceFailed', error.message));
             await loadOptions();
             await checkLoginStatus();
         } finally {
@@ -212,6 +244,12 @@ function bindEvents() {
 }
 
 // ─── Save Helpers ────────────────────────
+function selectLanguage(language) {
+    elements.language.querySelectorAll('input').forEach(input => {
+        input.checked = input.value === language;
+    });
+}
+
 function saveOption(key, value) {
     return saveOptions({ [key]: value });
 }
@@ -222,6 +260,7 @@ function saveOptions(payload) {
 
 function setAccountBusy(busy) {
     [
+        elements.language,
         elements.apiDomain,
         elements.btnLogin,
         elements.btnLogout,
@@ -248,7 +287,7 @@ async function loadProjectLists() {
     const projects = response.data;
     const currentValue = elements.targetList.value;
 
-    elements.targetList.innerHTML = '<option value="">收件箱（默认）</option>';
+    elements.targetList.replaceChildren(new Option(t('inboxDefault'), ''));
 
     for (const project of projects) {
         const option = document.createElement('option');
