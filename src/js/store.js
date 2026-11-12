@@ -1,12 +1,13 @@
 /**
  * Chrome Storage Wrapper
- * Manages extension settings with chrome.storage.sync
+ * Syncs preferences and keeps access tokens in trusted local storage
  */
 const DEFAULT_CLIENT_IDS = {
   dida365: '0Ece5vu6cI93KzPUax',
   ticktick: 'NsXrQ7s86K757MKy7a'
 };
-const ACCOUNT_FIELDS = ['clientId', 'token', 'targetListId', 'targetListName'];
+const ACCOUNT_FIELDS = ['clientId', 'targetListId', 'targetListName'];
+let tokenStorageReady;
 
 export const storage = {
   location: chrome.storage.sync,
@@ -38,13 +39,15 @@ export const storage = {
     const opts = await this.loadOptions();
     const domain = apiDomain ?? opts.apiDomain;
     const clientIdKey = `${domain}.clientId`;
-    const tokenKey = `${domain}.token`;
-    const account = await this.get([clientIdKey, tokenKey]);
+    const [account, token] = await Promise.all([
+      this.get(clientIdKey),
+      this.getToken(domain)
+    ]);
     const isDida = domain === 'dida365';
     return {
       apiDomain: domain,
       clientId: account[clientIdKey] || DEFAULT_CLIENT_IDS[domain],
-      token: account[tokenKey],
+      token,
       oauthBase: isDida ? 'https://dida365.com/oauth' : 'https://ticktick.com/oauth',
       apiBase: isDida ? 'https://api.dida365.com/open/v1' : 'https://api.ticktick.com/open/v1',
       webBase: isDida ? 'https://dida365.com' : 'https://ticktick.com'
@@ -78,6 +81,23 @@ export const storage = {
     });
   },
 
+  async getToken(apiDomain) {
+    await prepareTokenStorage();
+    const key = `${apiDomain}.token`;
+    const stored = await chrome.storage.local.get(key);
+    return stored[key];
+  },
+
+  async setToken(apiDomain, token) {
+    await prepareTokenStorage();
+    await chrome.storage.local.set({ [`${apiDomain}.token`]: token });
+  },
+
+  async removeToken(apiDomain) {
+    await prepareTokenStorage();
+    await chrome.storage.local.remove(`${apiDomain}.token`);
+  },
+
   async saveOptions(options) {
     const current = await this.loadOptions();
     const domain = options.apiDomain ?? current.apiDomain;
@@ -89,10 +109,11 @@ export const storage = {
   },
 
   async loadOptions() {
+    await prepareTokenStorage();
     const accountKeys = Object.keys(DEFAULT_CLIENT_IDS).flatMap(domain =>
       ACCOUNT_FIELDS.map(key => `${domain}.${key}`)
     );
-    const stored = await this.location.get([...Object.keys(this.defaults), 'token', ...accountKeys]);
+    const stored = await this.location.get([...Object.keys(this.defaults), ...accountKeys]);
     const domain = stored.apiDomain ?? this.defaults.apiDomain;
     await this.migrateLegacyAccount(stored, domain);
 
@@ -120,3 +141,30 @@ export const storage = {
     await this.remove(legacyKeys);
   }
 };
+
+function prepareTokenStorage() {
+  tokenStorageReady ??= migrateTokens();
+  return tokenStorageReady;
+}
+
+async function migrateTokens() {
+  await chrome.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' });
+  const tokenKeys = Object.keys(DEFAULT_CLIENT_IDS).map(domain => `${domain}.token`);
+  const [synced, local] = await Promise.all([
+    chrome.storage.sync.get(['apiDomain', 'token', ...tokenKeys]),
+    chrome.storage.local.get(tokenKeys)
+  ]);
+  const legacyKey = `${synced.apiDomain ?? storage.defaults.apiDomain}.token`;
+  const updates = {};
+  for (const key of tokenKeys) {
+    const token = synced[key] ?? (key === legacyKey ? synced.token : undefined);
+    if (local[key] === undefined && token !== undefined) {
+      updates[key] = token;
+    }
+  }
+
+  // Save both services locally before deleting any synced credentials.
+  if (Object.keys(updates).length) await chrome.storage.local.set(updates);
+  const syncedKeys = ['token', ...tokenKeys].filter(key => synced[key] !== undefined);
+  if (syncedKeys.length) await chrome.storage.sync.remove(syncedKeys);
+}

@@ -235,21 +235,23 @@ async function showPageToast(tabId, { type, title, message, viewUrl, taskData })
  * Main one-click clipping function
  * @param {chrome.tabs.Tab} tab - The active tab
  * @param {object} [contextInfo] - Context menu info (optional)
+ * @param {object} [overrides] - Options for this clipping only
  */
-export async function clipToTickTick(tab, contextInfo) {
-    const options = await storage.loadOptions();
+export async function clipToTickTick(tab, contextInfo, overrides = {}) {
+    const options = { ...await storage.loadOptions(), ...overrides };
     const { apiDomain, webBase, token } = await storage.getDomainConfig(options.apiDomain);
 
     // Check authorization
     if (!token) {
         chrome.runtime.openOptionsPage();
-        return;
+        return { success: false, error: '请先登录后再剪藏' };
     }
 
     // Build task data
-    let plainTitle = tab.title;
+    let plainTitle = options.title?.trim() || tab.title;
+    const titleLabel = plainTitle.replace(/[\\[\]]/g, '\\$&');
     const taskData = {
-        title: `[${tab.title}](${tab.url})`
+        title: `[${titleLabel}](${tab.url})`
     };
 
     // Handle selected text
@@ -331,7 +333,7 @@ export async function clipToTickTick(tab, contextInfo) {
             if (response.status === 401) {
                 await ticktickApi.logout(apiDomain);
                 chrome.runtime.openOptionsPage();
-                return;
+                throw new Error('登录已过期，请重新登录后重试');
             }
             throw new Error(`任务创建失败: HTTP ${response.status}`);
         }
@@ -355,6 +357,7 @@ export async function clipToTickTick(tab, contextInfo) {
         if (options.autoClose) {
             setTimeout(() => chrome.tabs.remove(tab.id, () => { }), 1500);
         }
+        return { success: true };
     } catch (error) {
         console.error('Task creation failed:', error);
 
@@ -365,6 +368,7 @@ export async function clipToTickTick(tab, contextInfo) {
                 message: error.message
             });
         }
+        return { success: false, error: error.message };
     }
 }
 

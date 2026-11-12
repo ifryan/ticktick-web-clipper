@@ -111,31 +111,16 @@ async function handleClip() {
     els.btnClip.innerHTML = '<span class="spinner"></span>保存中...';
 
     try {
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-        // Build overrides from the popup form
-        const overrides = {
-            popupTitle: els.popupTitle.value,
-            projectId: els.popupList.value || undefined,
-            priority: Number(els.popupPriority.value),
+        const result = await sendMessage('clipTab', {
+            title: els.popupTitle.value,
+            targetListId: els.popupList.value,
+            taskPriority: Number(els.popupPriority.value),
             dueDate: Number(els.popupDue.value),
             includePageContent: els.popupContent.checked
-        };
-
-        // Save the overrides temporarily and then clip
-        await sendMessage('setOptions', {
-            targetListId: overrides.projectId || '',
-            taskPriority: overrides.priority,
-            dueDate: overrides.dueDate,
-            includePageContent: overrides.includePageContent
         });
 
-        const result = await sendMessage('clipTab');
-
         if (result?.success) {
-            // showView('clipSuccess');
-            // Auto-close popup after 1.5s
-            window.close()
+            window.close();
         } else {
             throw new Error(result?.error || '创建任务失败');
         }

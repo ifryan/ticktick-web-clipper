@@ -26,7 +26,6 @@
     "contextMenus",
     "activeTab",
     "storage",
-    "sessions",
     "identity",
     "scripting"
   ],

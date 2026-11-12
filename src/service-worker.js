@@ -106,10 +106,9 @@ async function handleMessage(message, sender, sendResponse) {
                 break;
 
             case 'clipTab':
-                // From popup: clip the specified tab
+                const overrides = readClipOptions(message.payload);
                 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-                await clipToTickTick(tab);
-                sendResponse({ success: true });
+                sendResponse(await clipToTickTick(tab, undefined, overrides));
                 break;
 
             default:
@@ -132,4 +131,20 @@ async function updatePopupState() {
     } else {
         chrome.action.setPopup({ popup: '' });
     }
+}
+
+function readClipOptions(payload) {
+    if (!payload || typeof payload.title !== 'string' || typeof payload.targetListId !== 'string'
+        || ![0, 1, 3, 5].includes(payload.taskPriority)
+        || ![-1, 0, 1, 2, 7].includes(payload.dueDate)
+        || typeof payload.includePageContent !== 'boolean') {
+        throw new Error('剪藏参数无效，请重新打开弹窗');
+    }
+    return {
+        title: payload.title,
+        targetListId: payload.targetListId,
+        taskPriority: payload.taskPriority,
+        dueDate: payload.dueDate,
+        includePageContent: payload.includePageContent
+    };
 }
