@@ -3,10 +3,10 @@
     "message": "zh-CN"
   },
   "extensionName": {
-    "message": "TickTick Web Clipper"
+    "message": "网页剪藏 · 适用于滴答清单与 TickTick"
   },
   "extensionDescription": {
-    "message": "一键将网页链接、选中文字和页面正文保存到滴答清单或 TickTick。"
+    "message": "非官方扩展：一键将网页链接、选中文字和页面正文保存到滴答清单或 TickTick。与滴答清单官方无关联。"
   },
   "actionTitle": {
     "message": "剪藏到滴答清单 / TickTick"
@@ -36,7 +36,7 @@
     }
   },
   "optionsTitle": {
-    "message": "TickTick Web Clipper 设置"
+    "message": "网页剪藏设置"
   },
   "accountHeading": {
     "message": "账户"

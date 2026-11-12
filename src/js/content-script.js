@@ -29,7 +29,7 @@
 
         return markdown;
     } catch (error) {
-        console.error('TickTick Web Clipper: content extraction failed', error);
+        console.error('Web Clipper: content extraction failed', error);
         return '';
     }
 })();

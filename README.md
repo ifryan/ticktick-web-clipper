@@ -1,10 +1,12 @@
-# TickTick Web Clipper
+# 网页剪藏 · 适用于滴答清单与 TickTick
 
 [简体中文](README.md) · [English](README.en.md)
 
-将网页链接、选中文本和页面正文保存到滴答清单或 TickTick 的社区浏览器扩展，使用 Manifest V3、原生 JavaScript 和 HTML/CSS。
+将网页链接、选中文本和页面正文保存到滴答清单或 TickTick 的非官方社区浏览器扩展，使用 Manifest V3、原生 JavaScript 和 HTML/CSS。
 
-当前通过源码加载使用。公开发布前仍需完成发行身份与授权回调配置、隐私政策和商店资料，以及两版服务的实际联调。源码审查记录与修复进展见开源审查报告。
+本项目与滴答清单 / TickTick 官方无关联，也未获其认可，产品名称仅用于说明兼容对象。
+
+当前通过源码加载使用。上架步骤（包括每个商店版本都需要登记的 OAuth 回调）见[商店发布指南](docs/store-release.md)，数据处理说明见[隐私政策](PRIVACY.md)，源码审查记录与修复进展见开源审查报告。
 
 [审查报告](docs/open-source-review.md) · [反馈问题](https://github.com/ifryan/ticktick-web-clipper/issues) · [作者网站](https://ryanhuang.space)
 
@@ -98,7 +100,7 @@ cd ticktick-web-clipper
 
 ## 已知限制
 
-- **授权分发** — 内置应用的回调登记需要与安装环境匹配，面向普通用户的稳定安装包和发布流程仍待完善。
+- **授权分发** — 回调地址需要与安装后的扩展 ID 一致。商店版本需在两版开发者平台登记各自的 ID，见[商店发布指南](docs/store-release.md)。
 - **账号信息** — `GET /open/v1/user/info` 未列入本次核对的官方 Open API 文档，两版兼容性仍待真实联调。读取失败时显示账号信息暂不可用。
 - **页面支持** — 浏览器内部页面、扩展商店等受限页面可能无法注入脚本；正文提取失败时可能只保留网页引用。
 - **Markdown 链接** — 全文提取中的标签符号替换可能影响带 `#` 的锚点链接。
@@ -138,7 +140,7 @@ src/
 
 本项目自有代码使用 MIT 许可证。随扩展分发的 Readability 使用 Apache-2.0，Turndown 使用 MIT，完整许可和已知来源记录随源码提供。
 
-早期 README 记录了对 `nickytonline/ticktick-web-clipper` 的参考，本次核对时该仓库地址返回 404。历史引用范围与图标来源仍需维护者补充确认。界面采用本项目编写的原生 HTML/CSS，分组布局参考 Arc UI Pro Settings Page。
+早期 README 记录了对 `nickytonline/ticktick-web-clipper` 的参考，本次核对时该仓库地址返回 404。历史引用范围仍需维护者补充确认。当前图标由仓库内的 `scripts/make-icons.py` 生成。界面采用本项目编写的原生 HTML/CSS，分组布局参考 Arc UI Pro Settings Page。
 
 [MIT 许可证](LICENSE) · [第三方许可与来源](src/lib/THIRD_PARTY_NOTICES.md) · [开源审查报告](docs/open-source-review.md)
 
