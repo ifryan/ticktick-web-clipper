@@ -12,15 +12,74 @@
 }
 
 .header-icon {
+  flex-shrink: 0;
   width: 32px;
   height: 32px;
   border-radius: 8px;
 }
 
 .header h1 {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-size: 20px;
   font-weight: 600;
   letter-spacing: -0.025em;
+}
+
+.language-switch {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  flex-shrink: 0;
+  min-width: 0;
+  margin-left: auto;
+  padding: 3px;
+  border: 1px solid var(--separator);
+  border-radius: 9px;
+  background: var(--background);
+}
+
+.language-switch label {
+  position: relative;
+  display: flex;
+  cursor: pointer;
+}
+
+.language-switch input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.language-switch span {
+  width: 100%;
+  padding: 5px 10px;
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.language-switch input:checked + span {
+  background: var(--surface);
+  color: var(--foreground);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+}
+
+.language-switch input:focus-visible + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.language-switch:disabled label {
+  cursor: not-allowed;
+}
+
+.language-switch:disabled span {
+  opacity: 0.5;
 }
 
 .settings-section {

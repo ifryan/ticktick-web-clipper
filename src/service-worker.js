@@ -5,30 +5,37 @@
 import { storage } from './js/store.js';
 import { ticktickApi } from './js/ticktick-api.js';
 import { clipToTickTick, getSelectionInfo } from './js/clipper.js';
+import { t, initializeI18n, setLanguage, serviceName } from './js/i18n.js';
 
 // ─────────────────────────────────────────
 // Context Menus
 // ─────────────────────────────────────────
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
+    await initializeI18n();
+    const options = await storage.loadOptions();
+    const service = serviceName(options.apiDomain);
+    await chrome.contextMenus.removeAll();
     chrome.contextMenus.create({
         id: 'TickTickWebClipperPage',
-        title: '发送页面到滴答清单',
+        title: t('contextClipPage', service),
         contexts: ['page', 'frame', 'link', 'editable', 'video', 'audio', 'image']
     });
     chrome.contextMenus.create({
         id: 'TickTickWebClipperSelection',
-        title: '发送选中内容到滴答清单',
+        title: t('contextClipSelection', service),
         contexts: ['selection']
     });
 
-    // Initialize popup state based on stored settings
-    updatePopupState();
+    await updateExtensionUI();
 });
+
+chrome.runtime.onStartup.addListener(updateExtensionUI);
 
 // ─────────────────────────────────────────
 // Extension Icon Click
 // ─────────────────────────────────────────
-chrome.action.onClicked.addListener((tab) => {
+chrome.action.onClicked.addListener(async (tab) => {
+    await initializeI18n();
     // This only fires when popup is NOT set (usePopup = false)
     clipToTickTick(tab);
 });
@@ -36,7 +43,8 @@ chrome.action.onClicked.addListener((tab) => {
 // ─────────────────────────────────────────
 // Context Menu Click
 // ─────────────────────────────────────────
-chrome.contextMenus.onClicked.addListener((info, tab) => {
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+    await initializeI18n();
     if (info.menuItemId === 'TickTickWebClipperSelection') {
         getSelectionInfo(info, tab, (selection) => {
             info.selectionText = selection.text;
@@ -58,6 +66,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 async function handleMessage(message, sender, sendResponse) {
     try {
+        await initializeI18n();
         switch (message.type) {
             case 'login':
                 const loginResult = await ticktickApi.login();
@@ -76,14 +85,7 @@ async function handleMessage(message, sender, sendResponse) {
 
             case 'getAccountInfo':
                 const accountInfo = await ticktickApi.getAccountInfo();
-                const version = accountInfo.apiDomain === 'dida365' ? '国内版' : '国际版';
-                const accountLabel = accountInfo.isLoggedIn
-                    ? accountInfo.accountName || '已登录（账号信息暂不可用）'
-                    : '未登录';
-                sendResponse({
-                    success: true,
-                    data: { ...accountInfo, label: `${version} · ${accountLabel}` }
-                });
+                sendResponse({ success: true, data: accountInfo });
                 break;
 
             case 'getOptions':
@@ -92,10 +94,13 @@ async function handleMessage(message, sender, sendResponse) {
                 break;
 
             case 'setOptions':
+                if ('language' in message.payload && !['auto', 'en', 'zh_CN'].includes(message.payload.language)) {
+                    throw new Error(t('invalidLanguage'));
+                }
                 await storage.saveOptions(message.payload);
-                // Update popup state when usePopup setting changes
-                if ('usePopup' in message.payload) {
-                    updatePopupState();
+                if ('language' in message.payload) await setLanguage(message.payload.language);
+                if ('usePopup' in message.payload || 'apiDomain' in message.payload || 'language' in message.payload) {
+                    await updateExtensionUI();
                 }
                 sendResponse({ success: true });
                 break;
@@ -113,7 +118,7 @@ async function handleMessage(message, sender, sendResponse) {
 
             default:
                 console.log('Unrecognized message:', message);
-                sendResponse({ success: false, error: 'Unknown message type' });
+                sendResponse({ success: false, error: t('unknownMessage') });
         }
     } catch (error) {
         console.error('Message handler error:', error);
@@ -122,15 +127,18 @@ async function handleMessage(message, sender, sendResponse) {
 }
 
 // ─────────────────────────────────────────
-// Popup State Management
+// Toolbar and Context Menu State
 // ─────────────────────────────────────────
-async function updatePopupState() {
+async function updateExtensionUI() {
+    await initializeI18n();
     const options = await storage.loadOptions();
-    if (options.usePopup) {
-        chrome.action.setPopup({ popup: 'popup/popup.html' });
-    } else {
-        chrome.action.setPopup({ popup: '' });
-    }
+    const service = serviceName(options.apiDomain);
+    await Promise.all([
+        chrome.action.setPopup({ popup: options.usePopup ? 'popup/popup.html' : '' }),
+        chrome.action.setTitle({ title: t('actionTitleService', service) }),
+        chrome.contextMenus.update('TickTickWebClipperPage', { title: t('contextClipPage', service) }),
+        chrome.contextMenus.update('TickTickWebClipperSelection', { title: t('contextClipSelection', service) })
+    ]);
 }
 
 function readClipOptions(payload) {
@@ -138,7 +146,7 @@ function readClipOptions(payload) {
         || ![0, 1, 3, 5].includes(payload.taskPriority)
         || ![-1, 0, 1, 2, 7].includes(payload.dueDate)
         || typeof payload.includePageContent !== 'boolean') {
-        throw new Error('剪藏参数无效，请重新打开弹窗');
+        throw new Error(t('invalidClipOptions'));
     }
     return {
         title: payload.title,

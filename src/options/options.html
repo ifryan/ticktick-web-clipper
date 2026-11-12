@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TickTick Web Clipper 设置</title>
+  <title data-i18n="optionsTitle">TickTick Web Clipper Settings</title>
   <link rel="stylesheet" href="../styles/ui.css">
   <link rel="stylesheet" href="options.css">
 </head>
@@ -13,97 +13,111 @@
   <main class="container">
     <header class="header">
       <img src="../icons/icon48.png" alt="" class="header-icon">
-      <h1>TickTick Web Clipper</h1>
+      <h1 data-i18n="extensionName">TickTick Web Clipper</h1>
+      <fieldset id="language" class="language-switch" aria-label="Language" data-i18n-aria-label="language">
+        <label title="Follow browser" data-i18n-title="languageAuto">
+          <input type="radio" name="language" value="auto" aria-label="Follow browser" data-i18n-aria-label="languageAuto" checked>
+          <span data-i18n="languageAutoShort">Auto</span>
+        </label>
+        <label title="简体中文" lang="zh-CN">
+          <input type="radio" name="language" value="zh_CN" aria-label="简体中文">
+          <span>中文</span>
+        </label>
+        <label title="English" lang="en">
+          <input type="radio" name="language" value="en" aria-label="English">
+          <span>EN</span>
+        </label>
+      </fieldset>
     </header>
 
     <section class="settings-section" aria-labelledby="account-heading">
-      <h2 id="account-heading">账户</h2>
+      <h2 id="account-heading" data-i18n="accountHeading">Account</h2>
       <div class="account-content">
         <div class="form-group">
-          <label for="api-domain">服务版本</label>
+          <label for="api-domain" data-i18n="serviceVersion">Service</label>
           <select id="api-domain">
-            <option value="dida365">国内版 (dida365.com)</option>
-            <option value="ticktick">国际版 (ticktick.com)</option>
+            <option value="dida365" data-i18n="serviceDidaOption">Dida365 — China (dida365.com)</option>
+            <option value="ticktick" data-i18n="serviceTickTickOption">TickTick — International (ticktick.com)</option>
           </select>
         </div>
         <div id="auth-status" class="auth-banner auth-logged-out" aria-live="polite">
-          <span class="auth-state"><span class="auth-dot" aria-hidden="true"></span><span id="auth-text">未登录</span></span>
-          <button id="btn-login" class="btn btn-primary">登录</button>
-          <button id="btn-logout" class="btn btn-secondary" style="display:none;">登出</button>
+          <span class="auth-state"><span class="auth-dot" aria-hidden="true"></span><span id="auth-text" data-i18n="signedOut">Not signed in</span></span>
+          <button id="btn-login" class="btn btn-primary" data-i18n="signIn">Sign in</button>
+          <button id="btn-logout" class="btn btn-secondary" style="display:none;" data-i18n="signOut">Sign out</button>
         </div>
       </div>
     </section>
 
     <section class="settings-section" aria-labelledby="task-heading">
-      <h2 id="task-heading">任务设置</h2>
+      <h2 id="task-heading" data-i18n="taskHeading">Task defaults</h2>
       <div class="settings-fields">
         <div class="form-group field-wide">
-          <label for="task-title-source">标题来源</label>
+          <label for="task-title-source" data-i18n="titleSource">Title source</label>
           <select id="task-title-source">
-            <option value="tabTitle">页面标题（选中时附加摘要）</option>
-            <option value="selectedText">选中文字（右键菜单时）</option>
+            <option value="tabTitle" data-i18n="pageTitleOption">Page title (append a summary of selected text)</option>
+            <option value="selectedText" data-i18n="selectionTitleOption">Selected text (context menu)</option>
           </select>
         </div>
         <div class="form-group field-wide">
-          <label for="target-list">目标清单</label>
+          <label for="target-list" data-i18n="targetList">Default list</label>
           <div class="input-group">
             <select id="target-list">
-              <option value="">收件箱（默认）</option>
+              <option value="" data-i18n="inboxDefault">Inbox (default)</option>
             </select>
-            <button id="btn-refresh-lists" class="btn-small" title="刷新清单列表" aria-label="刷新清单列表">↻</button>
+            <button id="btn-refresh-lists" class="btn-small" title="Refresh lists" data-i18n-title="refreshLists" aria-label="Refresh lists" data-i18n-aria-label="refreshLists">↻</button>
           </div>
         </div>
         <div class="form-group">
-          <label for="task-priority">优先级</label>
+          <label for="task-priority" data-i18n="priority">Priority</label>
           <select id="task-priority">
-            <option value="0">无</option>
-            <option value="1">低</option>
-            <option value="3">中</option>
-            <option value="5">高</option>
+            <option value="0" data-i18n="priorityNone">None</option>
+            <option value="1" data-i18n="priorityLow">Low</option>
+            <option value="3" data-i18n="priorityMedium">Medium</option>
+            <option value="5" data-i18n="priorityHigh">High</option>
           </select>
         </div>
         <div class="form-group">
-          <label for="due-date">截止日期</label>
+          <label for="due-date" data-i18n="dueDate">Due date</label>
           <select id="due-date">
-            <option value="-1">不设置</option>
-            <option value="0">今天</option>
-            <option value="1">明天</option>
-            <option value="2">后天</option>
-            <option value="7">一周后</option>
+            <option value="-1" data-i18n="dueNone">No due date</option>
+            <option value="0" data-i18n="dueToday">Today</option>
+            <option value="1" data-i18n="dueTomorrow">Tomorrow</option>
+            <option value="2" data-i18n="dueInTwoDays">In 2 days</option>
+            <option value="7" data-i18n="dueInOneWeek">In 1 week</option>
           </select>
         </div>
         <div class="form-group field-wide">
-          <label for="tags">标签</label>
-          <input type="text" id="tags" placeholder="多个标签用空格分隔">
+          <label for="tags" data-i18n="tags">Tags</label>
+          <input type="text" id="tags" placeholder="Separate tags with spaces" data-i18n-placeholder="tagsPlaceholder">
         </div>
       </div>
     </section>
 
     <section class="settings-section" aria-labelledby="behavior-heading">
-      <h2 id="behavior-heading">剪藏行为</h2>
+      <h2 id="behavior-heading" data-i18n="behaviorHeading">Clipping</h2>
       <div class="preference-list">
         <div class="preference-row">
           <div>
-            <label for="include-content">包含页面正文</label>
-            <p class="hint" id="include-content-hint">提取网页内容并转为 Markdown 保存</p>
+            <label for="include-content" data-i18n="includePageContent">Include page content</label>
+            <p class="hint" id="include-content-hint" data-i18n="includeContentHint">Extract the article and save it as Markdown</p>
           </div>
           <input type="checkbox" role="switch" class="switch" id="include-content" aria-describedby="include-content-hint">
         </div>
         <div class="preference-row">
           <div>
-            <label for="show-notification">显示页内通知</label>
-            <p class="hint" id="show-notification-hint">在当前网页显示剪藏结果</p>
+            <label for="show-notification" data-i18n="showNotification">Show in-page notifications</label>
+            <p class="hint" id="show-notification-hint" data-i18n="notificationHint">Show clipping results on the current page</p>
           </div>
           <input type="checkbox" role="switch" class="switch" id="show-notification" aria-describedby="show-notification-hint">
         </div>
         <div class="preference-row">
-          <label for="auto-close">自动关闭标签页</label>
+          <label for="auto-close" data-i18n="autoClose">Close tab after saving</label>
           <input type="checkbox" role="switch" class="switch" id="auto-close">
         </div>
         <div class="preference-row">
           <div>
-            <label for="use-popup">弹出面板模式</label>
-            <p class="hint" id="use-popup-hint">点击图标时先预览并编辑任务</p>
+            <label for="use-popup" data-i18n="usePopup">Preview before saving</label>
+            <p class="hint" id="use-popup-hint" data-i18n="popupHint">Review and edit the task when clicking the icon</p>
           </div>
           <input type="checkbox" role="switch" class="switch" id="use-popup" aria-describedby="use-popup-hint">
         </div>
@@ -112,7 +126,7 @@
 
     <footer class="footer">
       <span>v1.0.0</span>
-      <nav class="footer-links" aria-label="作者链接">
+      <nav class="footer-links" aria-label="Author links" data-i18n-aria-label="authorLinks">
         <a href="https://ryanhuang.space" target="_blank" rel="noopener noreferrer">@ifryanx</a>
         <a href="https://x.com/ryanhuangcn" target="_blank" rel="noopener noreferrer">X</a>
         <a href="https://github.com/ifryan" target="_blank" rel="noopener noreferrer">GitHub</a>

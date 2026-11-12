@@ -1,0 +1,363 @@
+{
+  "localeCode": {
+    "message": "zh-CN"
+  },
+  "extensionName": {
+    "message": "TickTick Web Clipper"
+  },
+  "extensionDescription": {
+    "message": "一键将网页链接、选中文字和页面正文保存到滴答清单或 TickTick。"
+  },
+  "actionTitle": {
+    "message": "剪藏到滴答清单 / TickTick"
+  },
+  "actionTitleService": {
+    "message": "剪藏到$SERVICE$",
+    "placeholders": {
+      "service": {
+        "content": "$1"
+      }
+    }
+  },
+  "contextClipPage": {
+    "message": "发送页面到$SERVICE$",
+    "placeholders": {
+      "service": {
+        "content": "$1"
+      }
+    }
+  },
+  "contextClipSelection": {
+    "message": "发送选中内容到$SERVICE$",
+    "placeholders": {
+      "service": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsTitle": {
+    "message": "TickTick Web Clipper 设置"
+  },
+  "accountHeading": {
+    "message": "账户"
+  },
+  "serviceVersion": {
+    "message": "服务版本"
+  },
+  "serviceDidaOption": {
+    "message": "滴答清单 — 国内版 (dida365.com)"
+  },
+  "serviceTickTickOption": {
+    "message": "TickTick — 国际版 (ticktick.com)"
+  },
+  "serviceDida": {
+    "message": "滴答清单"
+  },
+  "serviceTickTick": {
+    "message": "TickTick"
+  },
+  "signedOut": {
+    "message": "未登录"
+  },
+  "signIn": {
+    "message": "登录"
+  },
+  "signOut": {
+    "message": "登出"
+  },
+  "signingIn": {
+    "message": "登录中…"
+  },
+  "loadingAccount": {
+    "message": "正在读取账号…"
+  },
+  "loadingLogin": {
+    "message": "正在读取登录信息…"
+  },
+  "accountUnavailable": {
+    "message": "账号信息暂不可用"
+  },
+  "accountUnavailableSignedIn": {
+    "message": "已登录（账号信息暂不可用）"
+  },
+  "accountLabel": {
+    "message": "$SERVICE$ · $STATUS$",
+    "placeholders": {
+      "service": {
+        "content": "$1"
+      },
+      "status": {
+        "content": "$2"
+      }
+    }
+  },
+  "taskHeading": {
+    "message": "任务设置"
+  },
+  "titleSource": {
+    "message": "标题来源"
+  },
+  "pageTitleOption": {
+    "message": "页面标题（选中时附加摘要）"
+  },
+  "selectionTitleOption": {
+    "message": "选中文字（右键菜单时）"
+  },
+  "targetList": {
+    "message": "目标清单"
+  },
+  "inboxDefault": {
+    "message": "收件箱（默认）"
+  },
+  "refreshLists": {
+    "message": "刷新清单列表"
+  },
+  "priority": {
+    "message": "优先级"
+  },
+  "priorityNone": {
+    "message": "无"
+  },
+  "priorityLow": {
+    "message": "低"
+  },
+  "priorityMedium": {
+    "message": "中"
+  },
+  "priorityHigh": {
+    "message": "高"
+  },
+  "dueDate": {
+    "message": "截止日期"
+  },
+  "dueNone": {
+    "message": "不设置"
+  },
+  "dueToday": {
+    "message": "今天"
+  },
+  "dueTomorrow": {
+    "message": "明天"
+  },
+  "dueInTwoDays": {
+    "message": "后天"
+  },
+  "dueInOneWeek": {
+    "message": "一周后"
+  },
+  "tags": {
+    "message": "标签"
+  },
+  "tagsPlaceholder": {
+    "message": "多个标签用空格分隔"
+  },
+  "behaviorHeading": {
+    "message": "剪藏行为"
+  },
+  "includePageContent": {
+    "message": "包含页面正文"
+  },
+  "includeContentHint": {
+    "message": "提取网页内容并转为 Markdown 保存"
+  },
+  "showNotification": {
+    "message": "显示页内通知"
+  },
+  "notificationHint": {
+    "message": "在当前网页显示剪藏结果"
+  },
+  "autoClose": {
+    "message": "自动关闭标签页"
+  },
+  "usePopup": {
+    "message": "弹出面板模式"
+  },
+  "popupHint": {
+    "message": "点击图标时先预览并编辑任务"
+  },
+  "authorLinks": {
+    "message": "作者链接"
+  },
+  "popupHeading": {
+    "message": "网页剪藏"
+  },
+  "signInRequired": {
+    "message": "请先登录后再剪藏"
+  },
+  "openSettings": {
+    "message": "打开设置"
+  },
+  "taskTitle": {
+    "message": "标题"
+  },
+  "loading": {
+    "message": "加载中…"
+  },
+  "list": {
+    "message": "清单"
+  },
+  "inbox": {
+    "message": "收件箱"
+  },
+  "includeContent": {
+    "message": "包含正文"
+  },
+  "saveTask": {
+    "message": "保存任务"
+  },
+  "saveToService": {
+    "message": "保存到$SERVICE$",
+    "placeholders": {
+      "service": {
+        "content": "$1"
+      }
+    }
+  },
+  "saving": {
+    "message": "保存中…"
+  },
+  "taskSaved": {
+    "message": "任务已保存"
+  },
+  "createTaskFailed": {
+    "message": "任务创建失败"
+  },
+  "retry": {
+    "message": "重试"
+  },
+  "viewTask": {
+    "message": "查看任务"
+  },
+  "closeNotification": {
+    "message": "关闭通知"
+  },
+  "creatingTask": {
+    "message": "正在创建任务…"
+  },
+  "taskCreated": {
+    "message": "任务已创建"
+  },
+  "loginExpired": {
+    "message": "登录已过期，请重新登录后重试"
+  },
+  "createTaskHttpError": {
+    "message": "任务创建失败：HTTP $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "unknownError": {
+    "message": "未知错误"
+  },
+  "invalidClipOptions": {
+    "message": "剪藏参数无效，请重新打开弹窗"
+  },
+  "unknownMessage": {
+    "message": "未知消息类型"
+  },
+  "saveAuthFailed": {
+    "message": "保存授权配置失败"
+  },
+  "signInFailed": {
+    "message": "登录失败：$DETAIL$",
+    "placeholders": {
+      "detail": {
+        "content": "$1"
+      }
+    }
+  },
+  "signOutFailed": {
+    "message": "登出失败：$DETAIL$",
+    "placeholders": {
+      "detail": {
+        "content": "$1"
+      }
+    }
+  },
+  "saveServiceFailed": {
+    "message": "保存服务版本失败"
+  },
+  "switchServiceFailed": {
+    "message": "切换服务失败：$DETAIL$",
+    "placeholders": {
+      "detail": {
+        "content": "$1"
+      }
+    }
+  },
+  "projectsHttpError": {
+    "message": "读取清单失败：HTTP $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "oauthNotConfigured": {
+    "message": "当前服务版本尚未配置授权应用，请联系插件开发者"
+  },
+  "oauthCancelled": {
+    "message": "授权被取消"
+  },
+  "oauthCallbackMismatch": {
+    "message": "授权回调地址不匹配，请重新登录"
+  },
+  "oauthStateMismatch": {
+    "message": "授权校验失败，请重新登录"
+  },
+  "oauthFailed": {
+    "message": "授权失败：$DETAIL$",
+    "placeholders": {
+      "detail": {
+        "content": "$1"
+      }
+    }
+  },
+  "oauthCodeMissing": {
+    "message": "未获取到授权码"
+  },
+  "oauthTokenHttpError": {
+    "message": "PKCE Token 获取失败：HTTP $STATUS$ $DETAIL$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      },
+      "detail": {
+        "content": "$2"
+      }
+    }
+  },
+  "oauthTokenMissing": {
+    "message": "授权响应未包含有效的访问令牌"
+  },
+  "language": {
+    "message": "语言"
+  },
+  "languageAuto": {
+    "message": "跟随浏览器"
+  },
+  "invalidLanguage": {
+    "message": "不支持的界面语言"
+  },
+  "switchLanguageFailed": {
+    "message": "切换语言失败：$DETAIL$",
+    "placeholders": {
+      "detail": {
+        "content": "$1"
+      }
+    }
+  },
+  "loadLanguageFailed": {
+    "message": "加载语言资源失败：HTTP $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "languageAutoShort": {
+    "message": "自动"
+  }
+}

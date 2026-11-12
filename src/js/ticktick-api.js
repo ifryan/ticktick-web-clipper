@@ -4,6 +4,7 @@
  * OAuth2 Authorization Code Flow with PKCE via chrome.identity
  */
 import { storage } from './store.js';
+import { t } from './i18n.js';
 
 export const ticktickApi = {
 
@@ -79,7 +80,7 @@ export const ticktickApi = {
             if (response.ok) {
                 return response.json();
             }
-            throw new Error(`Failed to fetch projects: ${response.status}`);
+            throw new Error(t('projectsHttpError', String(response.status)));
         }
     },
 
@@ -103,7 +104,7 @@ export const ticktickApi = {
         const { apiDomain, oauthBase, clientId } = await storage.getDomainConfig();
 
         if (!clientId) {
-            throw new Error('当前服务版本尚未配置授权应用，请联系插件开发者');
+            throw new Error(t('oauthNotConfigured'));
         }
 
         const redirectUri = chrome.identity.getRedirectURL();
@@ -167,26 +168,26 @@ function launchAuthorization(url) {
 
 function getAuthorizationCode(responseUrl, redirectUri, state) {
     if (!responseUrl) {
-        throw new Error('授权被取消');
+        throw new Error(t('oauthCancelled'));
     }
 
     const response = new URL(responseUrl);
     const expected = new URL(redirectUri);
     if (response.origin !== expected.origin || response.pathname !== expected.pathname) {
-        throw new Error('授权回调地址不匹配，请重新登录');
+        throw new Error(t('oauthCallbackMismatch'));
     }
     if (response.searchParams.get('state') !== state) {
-        throw new Error('授权校验失败，请重新登录');
+        throw new Error(t('oauthStateMismatch'));
     }
 
     const error = response.searchParams.get('error');
     if (error) {
-        throw new Error(error === 'access_denied' ? '授权被取消' : `授权失败: ${error}`);
+        throw new Error(error === 'access_denied' ? t('oauthCancelled') : t('oauthFailed', error));
     }
 
     const authCode = response.searchParams.get('code');
     if (!authCode) {
-        throw new Error('未获取到授权码');
+        throw new Error(t('oauthCodeMissing'));
     }
     return authCode;
 }
@@ -201,10 +202,10 @@ async function requestAccessToken(oauthBase, tokenParams) {
 
     if (!response.ok) {
         const detail = tokenData?.error_description || tokenData?.error || response.statusText;
-        throw new Error(`PKCE Token 获取失败: HTTP ${response.status} ${detail}`);
+        throw new Error(t('oauthTokenHttpError', [String(response.status), detail]));
     }
     if (typeof tokenData?.access_token !== 'string' || !tokenData.access_token.trim()) {
-        throw new Error('授权响应未包含有效的访问令牌');
+        throw new Error(t('oauthTokenMissing'));
     }
     return tokenData;
 }

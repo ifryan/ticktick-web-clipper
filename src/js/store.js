@@ -14,7 +14,7 @@ export const storage = {
 
   defaults: {
     // API / Auth
-    apiDomain: 'dida365',         // 'dida365' (国内版) or 'ticktick' (国际版)
+    apiDomain: chrome.i18n.getMessage('localeCode') === 'zh-CN' ? 'dida365' : 'ticktick',
     clientId: '',
 
     // Task settings
@@ -29,6 +29,7 @@ export const storage = {
     includePageContent: true,
 
     // UI
+    language: 'auto',
     usePopup: false                // true = show popup panel before saving
   },
 
@@ -151,10 +152,16 @@ async function migrateTokens() {
   await chrome.storage.local.setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' });
   const tokenKeys = Object.keys(DEFAULT_CLIENT_IDS).map(domain => `${domain}.token`);
   const [synced, local] = await Promise.all([
-    chrome.storage.sync.get(['apiDomain', 'token', ...tokenKeys]),
+    chrome.storage.sync.get(null),
     chrome.storage.local.get(tokenKeys)
   ]);
-  const legacyKey = `${synced.apiDomain ?? storage.defaults.apiDomain}.token`;
+  // Older installs without an explicit service used Dida365. Choose a locale-based
+  // default only for fresh installs, and persist it across browser language changes.
+  const domain = synced.apiDomain ?? (
+    Object.keys(synced).length || Object.keys(local).length ? 'dida365' : storage.defaults.apiDomain
+  );
+  if (synced.apiDomain === undefined) await chrome.storage.sync.set({ apiDomain: domain });
+  const legacyKey = `${domain}.token`;
   const updates = {};
   for (const key of tokenKeys) {
     const token = synced[key] ?? (key === legacyKey ? synced.token : undefined);

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TickTick Web Clipper</title>
+    <title data-i18n="extensionName">TickTick Web Clipper</title>
     <link rel="stylesheet" href="../styles/ui.css">
     <link rel="stylesheet" href="popup.css">
 </head>
@@ -14,81 +14,81 @@
         <header class="form-header">
             <img src="../icons/icon32.png" alt="" class="form-icon">
             <div class="form-heading">
-                <span class="form-title">网页剪藏</span>
-                <p id="popup-account" class="account-summary" aria-live="polite">正在读取登录信息…</p>
+                <span class="form-title" data-i18n="popupHeading">Web Clipper</span>
+                <p id="popup-account" class="account-summary" aria-live="polite" data-i18n="loadingLogin">Loading sign-in status…</p>
             </div>
         </header>
 
         <!-- Not logged in state -->
         <div id="not-logged-in" style="display:none;">
-            <p class="status-text">请先登录后再剪藏</p>
-            <button id="btn-go-options" class="btn btn-primary btn-full">打开设置</button>
+            <p class="status-text" data-i18n="signInRequired">Sign in before saving a page</p>
+            <button id="btn-go-options" class="btn btn-primary btn-full" data-i18n="openSettings">Open settings</button>
         </div>
 
         <!-- Ready to clip state -->
         <div id="clip-form" style="display:none;">
             <div class="form-group">
-                <label for="popup-title">标题</label>
-                <input type="text" id="popup-title" placeholder="加载中...">
+                <label for="popup-title" data-i18n="taskTitle">Title</label>
+                <input type="text" id="popup-title" placeholder="Loading…" data-i18n-placeholder="loading">
             </div>
 
             <div class="form-group">
-                <label for="popup-list">清单</label>
+                <label for="popup-list" data-i18n="list">List</label>
                 <select id="popup-list">
-                    <option value="">收件箱</option>
+                    <option value="" data-i18n="inbox">Inbox</option>
                 </select>
             </div>
 
             <div class="form-row">
                 <div class="form-group half">
-                    <label for="popup-priority">优先级</label>
+                    <label for="popup-priority" data-i18n="priority">Priority</label>
                     <select id="popup-priority">
-                        <option value="0">无</option>
-                        <option value="1">低</option>
-                        <option value="3">中</option>
-                        <option value="5">高</option>
+                        <option value="0" data-i18n="priorityNone">None</option>
+                        <option value="1" data-i18n="priorityLow">Low</option>
+                        <option value="3" data-i18n="priorityMedium">Medium</option>
+                        <option value="5" data-i18n="priorityHigh">High</option>
                     </select>
                 </div>
                 <div class="form-group half">
-                    <label for="popup-due">截止日期</label>
+                    <label for="popup-due" data-i18n="dueDate">Due date</label>
                     <select id="popup-due">
-                        <option value="-1">不设置</option>
-                        <option value="0">今天</option>
-                        <option value="1">明天</option>
-                        <option value="2">后天</option>
-                        <option value="7">一周后</option>
+                        <option value="-1" data-i18n="dueNone">No due date</option>
+                        <option value="0" data-i18n="dueToday">Today</option>
+                        <option value="1" data-i18n="dueTomorrow">Tomorrow</option>
+                        <option value="2" data-i18n="dueInTwoDays">In 2 days</option>
+                        <option value="7" data-i18n="dueInOneWeek">In 1 week</option>
                     </select>
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="switch-label">
-                    <span>包含正文</span>
+                    <span data-i18n="includeContent">Include content</span>
                     <input type="checkbox" role="switch" class="switch" id="popup-content" checked>
                 </label>
             </div>
 
-            <button id="btn-clip" class="btn btn-primary btn-full">
-                保存到滴答清单
+            <button id="btn-clip" class="btn btn-primary btn-full" data-i18n="saveTask">
+                Save task
             </button>
         </div>
 
         <!-- Success state -->
         <div id="clip-success" style="display:none;">
             <div class="status-icon status-icon-success" aria-hidden="true">✓</div>
-            <p class="status-text">已保存到滴答清单!</p>
+            <p class="status-text" data-i18n="taskSaved">Task saved</p>
         </div>
 
         <!-- Error state -->
         <div id="clip-error" style="display:none;">
             <div class="status-icon status-icon-error" aria-hidden="true">!</div>
-            <p class="status-text" id="error-message">创建失败</p>
-            <button id="btn-retry" class="btn btn-secondary btn-full">重试</button>
+            <p class="status-text" id="error-message" data-i18n="createTaskFailed">Failed to create task</p>
+            <button id="btn-retry" class="btn btn-secondary btn-full" data-i18n="retry">Retry</button>
         </div>
 
         <footer class="footer">
             <span>v1.0.0</span>
-            <nav class="footer-links" aria-label="作者链接">
+            <nav class="footer-links" aria-label="Author links" data-i18n-aria-label="authorLinks">
                 <a href="https://ryanhuang.space" target="_blank" rel="noopener noreferrer">@ifryanx</a>
                 <a href="https://x.com/ryanhuangcn" target="_blank" rel="noopener noreferrer">X</a>
                 <a href="https://github.com/ifryan" target="_blank" rel="noopener noreferrer">GitHub</a>
