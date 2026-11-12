@@ -88,7 +88,7 @@ export const ticktickApi = {
      */
     async logout(apiDomain) {
         const domain = apiDomain ?? (await storage.loadOptions()).apiDomain;
-        await storage.remove(`${domain}.token`);
+        await storage.removeToken(domain);
         try {
             chrome.identity.clearAllCachedAuthTokens(() => { });
         } catch (e) {
@@ -132,7 +132,7 @@ export const ticktickApi = {
         });
         const tokenData = await requestAccessToken(oauthBase, tokenParams);
 
-        await storage.set({ [`${apiDomain}.token`]: tokenData.access_token });
+        await storage.setToken(apiDomain, tokenData.access_token);
         return tokenData;
     }
 };
